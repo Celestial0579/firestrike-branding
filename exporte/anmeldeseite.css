@@ -1,0 +1,57 @@
+/*
+ * Firestrike: Feuerstein auf Stahl.
+ * Erzeugt aus tokens/firestrike.json und vorlagen/anmeldeseite.css (Version 1.0.0) von werkzeuge/marke.py.
+ * Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
+ */
+/* Anmeldeseite auf PatternFly-Grundlage (Klassen pf-c-*).
+   Nur Farben, Schriften und Kanten. Keine Regel verändert Anordnung oder
+   Sichtbarkeit, damit die Anmeldung nicht kaputtgehen kann und kein
+   Hinweis verdeckt wird. */
+:root {
+  --fs-grund: #EFF0ED;
+  --fs-flaeche: #FFFFFF;
+  --fs-flaeche-tief: #E3E5E1;
+  --fs-linie: #C9CCC6;
+  --fs-text: #1B1E1C;
+  --fs-text-leise: #5A605B;
+  --fs-stahl: #33414B;
+  --fs-stahl-tief: #212B33;
+  --fs-funke: #E8A33D;
+  --fs-glut: #A24C18;
+  --fs-fokus: var(--fs-glut);
+  --fs-radius: 0;
+  --fs-fokus-staerke: 2px;
+  --fs-fokus-abstand: 2px;
+  --fs-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --fs-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fs-grund: #141715;
+    --fs-flaeche: #1C201D;
+    --fs-flaeche-tief: #262B27;
+    --fs-linie: #38403A;
+    --fs-text: #E8EBE7;
+    --fs-text-leise: #A5ADA6;
+    --fs-stahl: #7E93A1;
+    --fs-stahl-tief: #B4C6D1;
+    --fs-funke: #F2B558;
+    --fs-glut: #DB7745;
+    --fs-fokus: var(--fs-funke);
+  }
+}
+.pf-c-background-image, .pf-c-login { background: var(--fs-grund); }
+.pf-c-login__main, .pf-c-card { background: var(--fs-flaeche); border-radius: var(--fs-radius); color: var(--fs-text); }
+.pf-c-title, h1, h2, h3 { font-family: var(--fs-serif); color: var(--fs-stahl-tief); font-weight: 600; }
+body, .pf-c-form__label, .pf-c-form-control { font-family: var(--fs-sans); }
+.pf-c-form-control { border-radius: var(--fs-radius); }
+.pf-c-button { border-radius: var(--fs-radius); font-family: var(--fs-sans); }
+/* Schrift ausdrücklich in Fläche: im dunklen Thema wäre Weiß auf Stahl zu schwach. */
+.pf-c-button.pf-m-primary { background: var(--fs-stahl); color: var(--fs-flaeche); }
+.pf-c-button.pf-m-primary:hover, .pf-c-button.pf-m-primary:focus-visible { background: var(--fs-glut); color: var(--fs-flaeche); }
+a, .pf-c-button.pf-m-link { color: var(--fs-glut); }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: var(--fs-fokus-staerke) solid var(--fs-fokus); outline-offset: var(--fs-fokus-abstand);
+}
+.pf-c-login__main-footer-band, .pf-c-login__footer { color: var(--fs-text-leise); }

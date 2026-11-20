@@ -1,0 +1,85 @@
+// Firestrike: Feuerstein auf Stahl.
+// Erzeugt aus tokens/firestrike.json (Version 1.0.0) von werkzeuge/marke.py.
+// Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
+//
+// Farben heißen nach ihrer Rolle, nie nach dem Farbton.
+
+// --- hell ---
+
+/// Seitengrund, die unterste Ebene
+$fs-grund: #eff0ed;
+/// Karten und Felder; Schrift auf Stahl und Glut
+$fs-flaeche: #ffffff;
+/// abgesetzte Fläche: Quelltext, Tabellenköpfe, Hervorhebungen
+$fs-flaeche-tief: #e3e5e1;
+/// Trennlinien und Ränder; nur Schmuck, trägt nie Bedeutung
+$fs-linie: #c9ccc6;
+/// Fließtext
+$fs-text: #1b1e1c;
+/// Nebensächliches: Datum, Bildunterschrift, Hilfetext
+$fs-text-leise: #5a605b;
+/// Schaltflächen, ruhige Akzentflächen, Verweis beim Überfahren
+$fs-stahl: #33414b;
+/// Überschriften und Wortmarke; eine Textrolle, im dunklen Thema bewusst hell
+$fs-stahl-tief: #212b33;
+/// der eine warme Akzent: Linien und Marker; auf hellem Grund nie Text
+$fs-funke: #e8a33d;
+/// Verweise im Fließtext, Schaltfläche beim Überfahren
+$fs-glut: #a24c18;
+/// Tastaturfokus; eigene Rolle, weil der Funke auf hellem Grund zu schwach ist
+$fs-fokus: #a24c18;
+
+// --- dunkel ---
+
+$fs-grund-dunkel: #141715;
+$fs-flaeche-dunkel: #1c201d;
+$fs-flaeche-tief-dunkel: #262b27;
+$fs-linie-dunkel: #38403a;
+$fs-text-dunkel: #e8ebe7;
+$fs-text-leise-dunkel: #a5ada6;
+$fs-stahl-dunkel: #7e93a1;
+$fs-stahl-tief-dunkel: #b4c6d1;
+$fs-funke-dunkel: #f2b558;
+$fs-glut-dunkel: #db7745;
+$fs-fokus-dunkel: #f2b558;
+
+// --- als Maps, etwa für @each ---
+
+$fs-hell: (
+  grund: $fs-grund,
+  flaeche: $fs-flaeche,
+  flaeche-tief: $fs-flaeche-tief,
+  linie: $fs-linie,
+  text: $fs-text,
+  text-leise: $fs-text-leise,
+  stahl: $fs-stahl,
+  stahl-tief: $fs-stahl-tief,
+  funke: $fs-funke,
+  glut: $fs-glut,
+  fokus: $fs-fokus,
+);
+$fs-dunkel: (
+  grund: $fs-grund-dunkel,
+  flaeche: $fs-flaeche-dunkel,
+  flaeche-tief: $fs-flaeche-tief-dunkel,
+  linie: $fs-linie-dunkel,
+  text: $fs-text-dunkel,
+  text-leise: $fs-text-leise-dunkel,
+  stahl: $fs-stahl-dunkel,
+  stahl-tief: $fs-stahl-tief-dunkel,
+  funke: $fs-funke-dunkel,
+  glut: $fs-glut-dunkel,
+  fokus: $fs-fokus-dunkel,
+);
+
+// --- Form und Schrift ---
+
+/// Kanten bleiben Kanten.
+$fs-radius: 0;
+/// Tastaturfokus: durchgezogen, mit Abstand, in der Rolle Fokus.
+$fs-fokus-staerke: 2px;
+$fs-fokus-abstand: 2px;
+/// Nur Systemschriften, es wird nichts ausgeliefert.
+$fs-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+$fs-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$fs-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;

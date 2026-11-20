@@ -1,0 +1,49 @@
+{
+  "leitbild": "Feuerstein auf Stahl",
+  "version": "1.0.0",
+  "beschreibung": "Quelle der Wahrheit für Farben, Schrift und Form aller Firestrike-Oberflächen. Nur hier ändern, danach python3 werkzeuge/marke.py erzeugen. Ein Wert wie \"=glut\" übernimmt den Wert einer anderen Rolle im selben Thema.",
+  "farben": [
+    { "rolle": "grund", "name": "Grund", "hell": "#EFF0ED", "dunkel": "#141715", "zweck": "Seitengrund, die unterste Ebene" },
+    { "rolle": "flaeche", "name": "Fläche", "hell": "#FFFFFF", "dunkel": "#1C201D", "zweck": "Karten und Felder; Schrift auf Stahl und Glut" },
+    { "rolle": "flaeche-tief", "name": "Fläche tief", "hell": "#E3E5E1", "dunkel": "#262B27", "zweck": "abgesetzte Fläche: Quelltext, Tabellenköpfe, Hervorhebungen" },
+    { "rolle": "linie", "name": "Linie", "hell": "#C9CCC6", "dunkel": "#38403A", "zweck": "Trennlinien und Ränder; nur Schmuck, trägt nie Bedeutung" },
+    { "rolle": "text", "name": "Text", "hell": "#1B1E1C", "dunkel": "#E8EBE7", "zweck": "Fließtext" },
+    { "rolle": "text-leise", "name": "Text leise", "hell": "#5A605B", "dunkel": "#A5ADA6", "zweck": "Nebensächliches: Datum, Bildunterschrift, Hilfetext" },
+    { "rolle": "stahl", "name": "Stahl", "hell": "#33414B", "dunkel": "#7E93A1", "zweck": "Schaltflächen, ruhige Akzentflächen, Verweis beim Überfahren" },
+    { "rolle": "stahl-tief", "name": "Stahl tief", "hell": "#212B33", "dunkel": "#B4C6D1", "zweck": "Überschriften und Wortmarke; eine Textrolle, im dunklen Thema bewusst hell" },
+    { "rolle": "funke", "name": "Funke", "hell": "#E8A33D", "dunkel": "#F2B558", "zweck": "der eine warme Akzent: Linien und Marker; auf hellem Grund nie Text" },
+    { "rolle": "glut", "name": "Glut", "hell": "#A24C18", "dunkel": "#DB7745", "zweck": "Verweise im Fließtext, Schaltfläche beim Überfahren" },
+    { "rolle": "fokus", "name": "Fokus", "hell": "=glut", "dunkel": "=funke", "zweck": "Tastaturfokus; eigene Rolle, weil der Funke auf hellem Grund zu schwach ist" }
+  ],
+  "kontrastpaare": [
+    { "vorne": "text", "hinten": ["grund", "flaeche", "flaeche-tief"], "mindestens": 4.5, "fuer": "Fließtext" },
+    { "vorne": "text-leise", "hinten": ["grund", "flaeche", "flaeche-tief"], "mindestens": 4.5, "fuer": "Nebentext" },
+    { "vorne": "stahl-tief", "hinten": ["grund", "flaeche", "flaeche-tief"], "mindestens": 4.5, "fuer": "Überschriften" },
+    { "vorne": "glut", "hinten": ["grund", "flaeche", "flaeche-tief"], "mindestens": 4.5, "fuer": "Verweise" },
+    { "vorne": "stahl", "hinten": ["grund", "flaeche", "flaeche-tief"], "mindestens": 4.5, "fuer": "Verweise beim Überfahren" },
+    { "vorne": "flaeche", "hinten": ["stahl", "glut"], "mindestens": 4.5, "fuer": "Schrift auf Schaltflächen" },
+    { "vorne": "fokus", "hinten": ["grund", "flaeche", "flaeche-tief"], "mindestens": 3, "fuer": "Fokusrahmen" }
+  ],
+  "schmuckpaare": [
+    { "vorne": "funke", "hinten": "grund", "hinweis": "auf hellem Grund nur Linien und Marker, nie Text" },
+    { "vorne": "linie", "hinten": "flaeche", "hinweis": "nie die einzige Grenze eines Bedienelements" }
+  ],
+  "schrift": {
+    "serif": {
+      "name": "Serif",
+      "css": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, \"Book Antiqua\", Georgia, serif",
+      "xaml": "Palatino Linotype, Book Antiqua, Georgia"
+    },
+    "sans": {
+      "name": "Sans",
+      "css": "ui-sans-serif, system-ui, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif",
+      "xaml": "Segoe UI Variable Text, Segoe UI"
+    },
+    "mono": {
+      "name": "Mono",
+      "css": "ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "xaml": "Cascadia Mono, Consolas"
+    }
+  },
+  "form": { "radius": "0", "fokus-staerke": "2px", "fokus-abstand": "2px" }
+}

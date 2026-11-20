@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 442" width="640" height="442" role="img" aria-label="Firestrike-Farbtafel, hell und dunkel">
+<rect x="0" y="0" width="320" height="442" fill="#EFF0ED"/>
+<text x="20" y="34" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="17" font-weight="700" fill="#212B33">Hell</text>
+<rect x="20" y="56" width="26" height="26" fill="#EFF0ED" stroke="#C9CCC6"/>
+<text x="58" y="74" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Grund</text>
+<text x="300" y="74" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#EFF0ED</text>
+<rect x="20" y="90" width="26" height="26" fill="#FFFFFF" stroke="#C9CCC6"/>
+<text x="58" y="108" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Fläche</text>
+<text x="300" y="108" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#FFFFFF</text>
+<rect x="20" y="124" width="26" height="26" fill="#E3E5E1" stroke="#C9CCC6"/>
+<text x="58" y="142" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Fläche tief</text>
+<text x="300" y="142" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#E3E5E1</text>
+<rect x="20" y="158" width="26" height="26" fill="#C9CCC6" stroke="#C9CCC6"/>
+<text x="58" y="176" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Linie</text>
+<text x="300" y="176" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#C9CCC6</text>
+<rect x="20" y="192" width="26" height="26" fill="#1B1E1C" stroke="#C9CCC6"/>
+<text x="58" y="210" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Text</text>
+<text x="300" y="210" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#1B1E1C</text>
+<rect x="20" y="226" width="26" height="26" fill="#5A605B" stroke="#C9CCC6"/>
+<text x="58" y="244" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Text leise</text>
+<text x="300" y="244" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#5A605B</text>
+<rect x="20" y="260" width="26" height="26" fill="#33414B" stroke="#C9CCC6"/>
+<text x="58" y="278" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Stahl</text>
+<text x="300" y="278" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#33414B</text>
+<rect x="20" y="294" width="26" height="26" fill="#212B33" stroke="#C9CCC6"/>
+<text x="58" y="312" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Stahl tief</text>
+<text x="300" y="312" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#212B33</text>
+<rect x="20" y="328" width="26" height="26" fill="#E8A33D" stroke="#C9CCC6"/>
+<text x="58" y="346" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Funke</text>
+<text x="300" y="346" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#E8A33D</text>
+<rect x="20" y="362" width="26" height="26" fill="#A24C18" stroke="#C9CCC6"/>
+<text x="58" y="380" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Glut</text>
+<text x="300" y="380" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#A24C18</text>
+<rect x="20" y="396" width="26" height="26" fill="#A24C18" stroke="#C9CCC6"/>
+<text x="58" y="414" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#1B1E1C">Fokus</text>
+<text x="300" y="414" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#5A605B" text-anchor="end">#A24C18</text>
+<rect x="320" y="0" width="320" height="442" fill="#141715"/>
+<text x="340" y="34" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="17" font-weight="700" fill="#B4C6D1">Dunkel</text>
+<rect x="340" y="56" width="26" height="26" fill="#141715" stroke="#38403A"/>
+<text x="378" y="74" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Grund</text>
+<text x="620" y="74" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#141715</text>
+<rect x="340" y="90" width="26" height="26" fill="#1C201D" stroke="#38403A"/>
+<text x="378" y="108" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Fläche</text>
+<text x="620" y="108" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#1C201D</text>
+<rect x="340" y="124" width="26" height="26" fill="#262B27" stroke="#38403A"/>
+<text x="378" y="142" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Fläche tief</text>
+<text x="620" y="142" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#262B27</text>
+<rect x="340" y="158" width="26" height="26" fill="#38403A" stroke="#38403A"/>
+<text x="378" y="176" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Linie</text>
+<text x="620" y="176" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#38403A</text>
+<rect x="340" y="192" width="26" height="26" fill="#E8EBE7" stroke="#38403A"/>
+<text x="378" y="210" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Text</text>
+<text x="620" y="210" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#E8EBE7</text>
+<rect x="340" y="226" width="26" height="26" fill="#A5ADA6" stroke="#38403A"/>
+<text x="378" y="244" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Text leise</text>
+<text x="620" y="244" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#A5ADA6</text>
+<rect x="340" y="260" width="26" height="26" fill="#7E93A1" stroke="#38403A"/>
+<text x="378" y="278" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Stahl</text>
+<text x="620" y="278" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#7E93A1</text>
+<rect x="340" y="294" width="26" height="26" fill="#B4C6D1" stroke="#38403A"/>
+<text x="378" y="312" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Stahl tief</text>
+<text x="620" y="312" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#B4C6D1</text>
+<rect x="340" y="328" width="26" height="26" fill="#F2B558" stroke="#38403A"/>
+<text x="378" y="346" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Funke</text>
+<text x="620" y="346" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#F2B558</text>
+<rect x="340" y="362" width="26" height="26" fill="#DB7745" stroke="#38403A"/>
+<text x="378" y="380" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Glut</text>
+<text x="620" y="380" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#DB7745</text>
+<rect x="340" y="396" width="26" height="26" fill="#F2B558" stroke="#38403A"/>
+<text x="378" y="414" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif" font-size="14" fill="#E8EBE7">Fokus</text>
+<text x="620" y="414" font-family="ui-monospace, 'Cascadia Mono', Consolas, monospace" font-size="13" fill="#A5ADA6" text-anchor="end">#F2B558</text>
+</svg>

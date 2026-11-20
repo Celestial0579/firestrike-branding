@@ -1,0 +1,28 @@
+/*
+ * Firestrike: Feuerstein auf Stahl.
+ * Erzeugt aus tokens/firestrike.json (Version 1.0.0) von werkzeuge/marke.py.
+ * Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
+ *
+ * Für style.css des WordPress-Themes. Die hellen Farben stehen als Palette
+ * in theme.json (firestrike.json hier daneben). Hier stehen die
+ * abgeleiteten Rollen und das dunkle Thema.
+ */
+:root {
+	--fs-fokus: var(--wp--preset--color--glut);
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--wp--preset--color--grund: #141715;
+		--wp--preset--color--flaeche: #1C201D;
+		--wp--preset--color--flaeche-tief: #262B27;
+		--wp--preset--color--linie: #38403A;
+		--wp--preset--color--text: #E8EBE7;
+		--wp--preset--color--text-leise: #A5ADA6;
+		--wp--preset--color--stahl: #7E93A1;
+		--wp--preset--color--stahl-tief: #B4C6D1;
+		--wp--preset--color--funke: #F2B558;
+		--wp--preset--color--glut: #DB7745;
+		--fs-fokus: var(--wp--preset--color--funke);
+	}
+}

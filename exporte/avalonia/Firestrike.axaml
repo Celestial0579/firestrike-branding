@@ -1,0 +1,92 @@
+<!--
+  Firestrike: Feuerstein auf Stahl.
+  Erzeugt aus tokens/firestrike.json (Version 1.0.0) von werkzeuge/marke.py.
+  Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
+  Farben heißen nach ihrer Rolle (Fs.Grund, Fs.Text …), nie nach dem Farbton.
+-->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <!-- Seitengrund, die unterste Ebene -->
+      <Color x:Key="Fs.Grund.Color">#eff0ed</Color>
+      <SolidColorBrush x:Key="Fs.Grund" Color="#eff0ed" />
+      <!-- Karten und Felder; Schrift auf Stahl und Glut -->
+      <Color x:Key="Fs.Flaeche.Color">#ffffff</Color>
+      <SolidColorBrush x:Key="Fs.Flaeche" Color="#ffffff" />
+      <!-- abgesetzte Fläche: Quelltext, Tabellenköpfe, Hervorhebungen -->
+      <Color x:Key="Fs.FlaecheTief.Color">#e3e5e1</Color>
+      <SolidColorBrush x:Key="Fs.FlaecheTief" Color="#e3e5e1" />
+      <!-- Trennlinien und Ränder; nur Schmuck, trägt nie Bedeutung -->
+      <Color x:Key="Fs.Linie.Color">#c9ccc6</Color>
+      <SolidColorBrush x:Key="Fs.Linie" Color="#c9ccc6" />
+      <!-- Fließtext -->
+      <Color x:Key="Fs.Text.Color">#1b1e1c</Color>
+      <SolidColorBrush x:Key="Fs.Text" Color="#1b1e1c" />
+      <!-- Nebensächliches: Datum, Bildunterschrift, Hilfetext -->
+      <Color x:Key="Fs.TextLeise.Color">#5a605b</Color>
+      <SolidColorBrush x:Key="Fs.TextLeise" Color="#5a605b" />
+      <!-- Schaltflächen, ruhige Akzentflächen, Verweis beim Überfahren -->
+      <Color x:Key="Fs.Stahl.Color">#33414b</Color>
+      <SolidColorBrush x:Key="Fs.Stahl" Color="#33414b" />
+      <!-- Überschriften und Wortmarke; eine Textrolle, im dunklen Thema bewusst hell -->
+      <Color x:Key="Fs.StahlTief.Color">#212b33</Color>
+      <SolidColorBrush x:Key="Fs.StahlTief" Color="#212b33" />
+      <!-- der eine warme Akzent: Linien und Marker; auf hellem Grund nie Text -->
+      <Color x:Key="Fs.Funke.Color">#e8a33d</Color>
+      <SolidColorBrush x:Key="Fs.Funke" Color="#e8a33d" />
+      <!-- Verweise im Fließtext, Schaltfläche beim Überfahren -->
+      <Color x:Key="Fs.Glut.Color">#a24c18</Color>
+      <SolidColorBrush x:Key="Fs.Glut" Color="#a24c18" />
+      <!-- Tastaturfokus; eigene Rolle, weil der Funke auf hellem Grund zu schwach ist -->
+      <Color x:Key="Fs.Fokus.Color">#a24c18</Color>
+      <SolidColorBrush x:Key="Fs.Fokus" Color="#a24c18" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <!-- Seitengrund, die unterste Ebene -->
+      <Color x:Key="Fs.Grund.Color">#141715</Color>
+      <SolidColorBrush x:Key="Fs.Grund" Color="#141715" />
+      <!-- Karten und Felder; Schrift auf Stahl und Glut -->
+      <Color x:Key="Fs.Flaeche.Color">#1c201d</Color>
+      <SolidColorBrush x:Key="Fs.Flaeche" Color="#1c201d" />
+      <!-- abgesetzte Fläche: Quelltext, Tabellenköpfe, Hervorhebungen -->
+      <Color x:Key="Fs.FlaecheTief.Color">#262b27</Color>
+      <SolidColorBrush x:Key="Fs.FlaecheTief" Color="#262b27" />
+      <!-- Trennlinien und Ränder; nur Schmuck, trägt nie Bedeutung -->
+      <Color x:Key="Fs.Linie.Color">#38403a</Color>
+      <SolidColorBrush x:Key="Fs.Linie" Color="#38403a" />
+      <!-- Fließtext -->
+      <Color x:Key="Fs.Text.Color">#e8ebe7</Color>
+      <SolidColorBrush x:Key="Fs.Text" Color="#e8ebe7" />
+      <!-- Nebensächliches: Datum, Bildunterschrift, Hilfetext -->
+      <Color x:Key="Fs.TextLeise.Color">#a5ada6</Color>
+      <SolidColorBrush x:Key="Fs.TextLeise" Color="#a5ada6" />
+      <!-- Schaltflächen, ruhige Akzentflächen, Verweis beim Überfahren -->
+      <Color x:Key="Fs.Stahl.Color">#7e93a1</Color>
+      <SolidColorBrush x:Key="Fs.Stahl" Color="#7e93a1" />
+      <!-- Überschriften und Wortmarke; eine Textrolle, im dunklen Thema bewusst hell -->
+      <Color x:Key="Fs.StahlTief.Color">#b4c6d1</Color>
+      <SolidColorBrush x:Key="Fs.StahlTief" Color="#b4c6d1" />
+      <!-- der eine warme Akzent: Linien und Marker; auf hellem Grund nie Text -->
+      <Color x:Key="Fs.Funke.Color">#f2b558</Color>
+      <SolidColorBrush x:Key="Fs.Funke" Color="#f2b558" />
+      <!-- Verweise im Fließtext, Schaltfläche beim Überfahren -->
+      <Color x:Key="Fs.Glut.Color">#db7745</Color>
+      <SolidColorBrush x:Key="Fs.Glut" Color="#db7745" />
+      <!-- Tastaturfokus; eigene Rolle, weil der Funke auf hellem Grund zu schwach ist -->
+      <Color x:Key="Fs.Fokus.Color">#f2b558</Color>
+      <SolidColorBrush x:Key="Fs.Fokus" Color="#f2b558" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!-- Kanten bleiben Kanten: die Radien von Fluent auf 0. -->
+  <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
+  <CornerRadius x:Key="OverlayCornerRadius">0</CornerRadius>
+  <!-- Tastaturfokus: durchgezogen, mit Abstand. -->
+  <Thickness x:Key="Fs.FocusThickness">2</Thickness>
+  <Thickness x:Key="Fs.FocusOffset">2</Thickness>
+  <!-- Nur Systemschriften, es wird nichts ausgeliefert. -->
+  <FontFamily x:Key="Fs.Font.Serif">Palatino Linotype, Book Antiqua, Georgia</FontFamily>
+  <FontFamily x:Key="Fs.Font.Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
+  <FontFamily x:Key="Fs.Font.Mono">Cascadia Mono, Consolas</FontFamily>
+</ResourceDictionary>

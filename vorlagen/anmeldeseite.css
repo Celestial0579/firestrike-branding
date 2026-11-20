@@ -1,0 +1,19 @@
+/* Anmeldeseite auf PatternFly-Grundlage (Klassen pf-c-*).
+   Nur Farben, Schriften und Kanten. Keine Regel verändert Anordnung oder
+   Sichtbarkeit, damit die Anmeldung nicht kaputtgehen kann und kein
+   Hinweis verdeckt wird. */
+/* @variablen */
+.pf-c-background-image, .pf-c-login { background: var(--fs-grund); }
+.pf-c-login__main, .pf-c-card { background: var(--fs-flaeche); border-radius: var(--fs-radius); color: var(--fs-text); }
+.pf-c-title, h1, h2, h3 { font-family: var(--fs-serif); color: var(--fs-stahl-tief); font-weight: 600; }
+body, .pf-c-form__label, .pf-c-form-control { font-family: var(--fs-sans); }
+.pf-c-form-control { border-radius: var(--fs-radius); }
+.pf-c-button { border-radius: var(--fs-radius); font-family: var(--fs-sans); }
+/* Schrift ausdrücklich in Fläche: im dunklen Thema wäre Weiß auf Stahl zu schwach. */
+.pf-c-button.pf-m-primary { background: var(--fs-stahl); color: var(--fs-flaeche); }
+.pf-c-button.pf-m-primary:hover, .pf-c-button.pf-m-primary:focus-visible { background: var(--fs-glut); color: var(--fs-flaeche); }
+a, .pf-c-button.pf-m-link { color: var(--fs-glut); }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: var(--fs-fokus-staerke) solid var(--fs-fokus); outline-offset: var(--fs-fokus-abstand);
+}
+.pf-c-login__main-footer-band, .pf-c-login__footer { color: var(--fs-text-leise); }
