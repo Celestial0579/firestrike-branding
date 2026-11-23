@@ -1,0 +1,89 @@
+/*
+ * Firestrike: Feuerstein auf Stahl.
+ * Erzeugt aus tokens/firestrike.json (Version 1.1.0) von werkzeuge/marke.py.
+ * Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
+ *
+ * Hell ist der Standard, Dunkel folgt dem Gerät (prefers-color-scheme).
+ * data-theme="light" oder data-theme="dark" am <html> legt das Thema fest.
+ * Fließende Schriftgrößen wachsen mit der Fensterbreite, siehe docs/masse.md.
+ */
+:root {
+  color-scheme: light;
+  /* Seitengrund, die unterste Ebene */
+  --fs-grund: #EFF0ED;
+  /* Karten und Felder; Schrift auf Stahl und Glut */
+  --fs-flaeche: #FFFFFF;
+  /* abgesetzte Fläche: Quelltext, Tabellenköpfe, Hervorhebungen */
+  --fs-flaeche-tief: #E3E5E1;
+  /* Trennlinien und Ränder; nur Schmuck, trägt nie Bedeutung */
+  --fs-linie: #C9CCC6;
+  /* Fließtext */
+  --fs-text: #1B1E1C;
+  /* Nebensächliches: Datum, Bildunterschrift, Hilfetext */
+  --fs-text-leise: #5A605B;
+  /* Schaltflächen, ruhige Akzentflächen, Verweis beim Überfahren */
+  --fs-stahl: #33414B;
+  /* Überschriften und Wortmarke; eine Textrolle, im dunklen Thema bewusst hell */
+  --fs-stahl-tief: #212B33;
+  /* der eine warme Akzent: Linien und Marker; auf hellem Grund nie Text */
+  --fs-funke: #E8A33D;
+  /* Verweise im Fließtext, Schaltfläche beim Überfahren */
+  --fs-glut: #A24C18;
+  /* Tastaturfokus; eigene Rolle, weil der Funke auf hellem Grund zu schwach ist */
+  --fs-fokus: var(--fs-glut);
+  --fs-radius: 0;
+  --fs-fokus-staerke: 2px;
+  --fs-fokus-abstand: 2px;
+  --fs-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --fs-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --fs-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
+  --fs-groesse-klein: 0.875rem;
+  --fs-groesse-normal: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.427), 1.0625rem);
+  --fs-groesse-gross: clamp(1.3rem, 1.3rem + ((1vw - 0.2rem) * 0.682), 1.6rem);
+  --fs-groesse-sehr-gross: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 1.818), 2.6rem);
+  --fs-groesse-titel: clamp(2.2rem, 2.2rem + ((1vw - 0.2rem) * 2.727), 3.4rem);
+  --fs-abstand-10: 0.35rem;
+  --fs-abstand-20: 0.7rem;
+  --fs-abstand-30: 1.1rem;
+  --fs-abstand-40: 1.7rem;
+  --fs-abstand-50: 2.6rem;
+  --fs-abstand-60: 4rem;
+  --fs-abstand-70: 6rem;
+  --fs-zeilenhoehe-text: 1.65;
+  --fs-zeilenhoehe-ueberschrift: 1.2;
+  --fs-staerke-ueberschrift: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --fs-grund: #141715;
+    --fs-flaeche: #1C201D;
+    --fs-flaeche-tief: #262B27;
+    --fs-linie: #38403A;
+    --fs-text: #E8EBE7;
+    --fs-text-leise: #A5ADA6;
+    --fs-stahl: #7E93A1;
+    --fs-stahl-tief: #B4C6D1;
+    --fs-funke: #F2B558;
+    --fs-glut: #DB7745;
+    --fs-fokus: var(--fs-funke);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --fs-grund: #141715;
+  --fs-flaeche: #1C201D;
+  --fs-flaeche-tief: #262B27;
+  --fs-linie: #38403A;
+  --fs-text: #E8EBE7;
+  --fs-text-leise: #A5ADA6;
+  --fs-stahl: #7E93A1;
+  --fs-stahl-tief: #B4C6D1;
+  --fs-funke: #F2B558;
+  --fs-glut: #DB7745;
+  --fs-fokus: var(--fs-funke);
+}
+
+:root { --fs-gl\75 t: #000000; }

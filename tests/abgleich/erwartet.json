@@ -1,12 +1,28 @@
 {
+  "avalonia-deckkraft.axaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell",
+      "abweichung glut hell"
+    ]
+  },
+  "avalonia-oberste-ebene.axaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut dunkel",
+      "abweichung glut dunkel"
+    ]
+  },
   "avalonia-passt.axaml": {
-    "streng": true,
     "exit": 0,
+    "exit_streng": 0,
     "befunde": []
   },
   "avalonia-weicht-ab.axaml": {
-    "streng": false,
     "exit": 1,
+    "exit_streng": 1,
     "befunde": [
       "abweichung glut dunkel",
       "abweichung glut hell",
@@ -33,14 +49,115 @@
       "unbekannt Fs.Orange.Color"
     ]
   },
-  "css-passt.css": {
-    "streng": true,
+  "css-escape.css": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell"
+    ]
+  },
+  "css-knapp-daneben.css": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung abstand-10",
+      "abweichung fokus-staerke",
+      "abweichung schrift-sans",
+      "abweichung staerke-ueberschrift",
+      "abweichung zeilenhoehe-text"
+    ]
+  },
+  "css-media-not.css": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell"
+    ]
+  },
+  "css-nur-streng.css": {
     "exit": 0,
+    "exit_streng": 1,
+    "befunde": [
+      "fehlt abstand-10",
+      "fehlt abstand-20",
+      "fehlt abstand-30",
+      "fehlt abstand-40",
+      "fehlt abstand-50",
+      "fehlt abstand-60",
+      "fehlt abstand-70",
+      "fehlt fokus-abstand",
+      "fehlt fokus-staerke",
+      "fehlt groesse-gross",
+      "fehlt groesse-klein",
+      "fehlt groesse-normal",
+      "fehlt groesse-sehr-gross",
+      "fehlt groesse-titel",
+      "fehlt radius",
+      "fehlt schrift-mono",
+      "fehlt schrift-sans",
+      "fehlt schrift-serif",
+      "fehlt staerke-ueberschrift",
+      "fehlt zeilenhoehe-text",
+      "fehlt zeilenhoehe-ueberschrift"
+    ]
+  },
+  "css-offener-string.css": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung text hell",
+      "fehlt abstand-10",
+      "fehlt abstand-20",
+      "fehlt abstand-30",
+      "fehlt abstand-40",
+      "fehlt abstand-50",
+      "fehlt abstand-60",
+      "fehlt abstand-70",
+      "fehlt flaeche dunkel",
+      "fehlt flaeche hell",
+      "fehlt flaeche-tief dunkel",
+      "fehlt flaeche-tief hell",
+      "fehlt fokus dunkel",
+      "fehlt fokus hell",
+      "fehlt fokus-abstand",
+      "fehlt fokus-staerke",
+      "fehlt funke dunkel",
+      "fehlt funke hell",
+      "fehlt glut dunkel",
+      "fehlt groesse-gross",
+      "fehlt groesse-klein",
+      "fehlt groesse-normal",
+      "fehlt groesse-sehr-gross",
+      "fehlt groesse-titel",
+      "fehlt grund dunkel",
+      "fehlt grund hell",
+      "fehlt linie dunkel",
+      "fehlt linie hell",
+      "fehlt radius",
+      "fehlt schrift-mono",
+      "fehlt schrift-sans",
+      "fehlt schrift-serif",
+      "fehlt staerke-ueberschrift",
+      "fehlt stahl dunkel",
+      "fehlt stahl hell",
+      "fehlt stahl-tief dunkel",
+      "fehlt stahl-tief hell",
+      "fehlt text dunkel",
+      "fehlt text-leise dunkel",
+      "fehlt text-leise hell",
+      "fehlt zeilenhoehe-text",
+      "fehlt zeilenhoehe-ueberschrift",
+      "unbekannt --fs-notiz"
+    ]
+  },
+  "css-passt.css": {
+    "exit": 0,
+    "exit_streng": 0,
     "befunde": []
   },
   "css-weicht-ab.css": {
-    "streng": false,
     "exit": 1,
+    "exit_streng": 1,
     "befunde": [
       "abweichung fokus dunkel",
       "abweichung fokus hell",
@@ -56,14 +173,83 @@
       "unbekannt --fs-orange"
     ]
   },
+  "scss-alte-glut-kommentar.scss": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "alte-glut #AB5019"
+    ]
+  },
+  "scss-map-anfuehrung.scss": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell",
+      "abweichung text hell",
+      "fehlt abstand-10",
+      "fehlt abstand-20",
+      "fehlt abstand-30",
+      "fehlt abstand-40",
+      "fehlt abstand-50",
+      "fehlt abstand-60",
+      "fehlt abstand-70",
+      "fehlt flaeche dunkel",
+      "fehlt flaeche hell",
+      "fehlt flaeche-tief dunkel",
+      "fehlt flaeche-tief hell",
+      "fehlt fokus dunkel",
+      "fehlt fokus hell",
+      "fehlt fokus-abstand",
+      "fehlt fokus-staerke",
+      "fehlt funke dunkel",
+      "fehlt funke hell",
+      "fehlt glut dunkel",
+      "fehlt groesse-gross",
+      "fehlt groesse-klein",
+      "fehlt groesse-normal",
+      "fehlt groesse-sehr-gross",
+      "fehlt groesse-titel",
+      "fehlt grund dunkel",
+      "fehlt linie dunkel",
+      "fehlt linie hell",
+      "fehlt radius",
+      "fehlt schrift-mono",
+      "fehlt schrift-sans",
+      "fehlt schrift-serif",
+      "fehlt staerke-ueberschrift",
+      "fehlt stahl dunkel",
+      "fehlt stahl hell",
+      "fehlt stahl-tief dunkel",
+      "fehlt stahl-tief hell",
+      "fehlt text dunkel",
+      "fehlt text-leise dunkel",
+      "fehlt text-leise hell",
+      "fehlt zeilenhoehe-text",
+      "fehlt zeilenhoehe-ueberschrift"
+    ]
+  },
+  "scss-map-merge.scss": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "unlesbar $fs-hell"
+    ]
+  },
   "scss-passt.scss": {
-    "streng": true,
     "exit": 0,
+    "exit_streng": 0,
     "befunde": []
   },
-  "scss-weicht-ab.scss": {
-    "streng": false,
+  "scss-unterstrich.scss": {
     "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell"
+    ]
+  },
+  "scss-weicht-ab.scss": {
+    "exit": 1,
+    "exit_streng": 1,
     "befunde": [
       "abweichung fokus hell",
       "abweichung glut dunkel",
@@ -76,15 +262,88 @@
       "unbekannt $fs-akzent"
     ]
   },
+  "unbrauchbar-doctype.axaml": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-entity.axaml": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-grosse-zahl.json": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-kaputt.axaml": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-liste.json": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-ohne-marke.css": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "wordpress-fluid-aus.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fluessig"
+    ]
+  },
+  "wordpress-fluid-breiten.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fluessig"
+    ]
+  },
+  "wordpress-minfontsize.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fluessig"
+    ]
+  },
   "wordpress-passt.json": {
-    "streng": true,
     "exit": 0,
+    "exit_streng": 0,
     "befunde": []
   },
-  "wordpress-weicht-ab.json": {
-    "streng": false,
+  "wordpress-slug-camel.json": {
     "exit": 1,
+    "exit_streng": 1,
     "befunde": [
+      "abweichung flaeche-tief hell"
+    ]
+  },
+  "wordpress-slug-doppelt.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell"
+    ]
+  },
+  "wordpress-slug-gross.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell"
+    ]
+  },
+  "wordpress-weicht-ab.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fluessig",
       "abweichung glut hell",
       "abweichung groesse-normal",
       "alte-glut #AB5019",

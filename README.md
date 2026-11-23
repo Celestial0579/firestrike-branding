@@ -47,7 +47,7 @@ Die Prüfung läuft auch bei jedem Push und Pull Request. Sie schlägt fehl, wen
 
 - ein Kontrastpaar in einem der beiden Themen unter seinem Mindestwert liegt (Text 4,5:1, Fokusrahmen 3:1, siehe [docs/kontraste.md](docs/kontraste.md)),
 - eine erzeugte Datei nicht mehr zu den Tokens passt,
-- `abgleichen` an einem eigenen Export eine Abweichung findet oder eine Prüfdatei unter `tests/abgleich/` nicht das Ergebnis aus `erwartet.json` liefert (bei neuen Tokenwerten die Prüfdateien mit anpassen),
+- `abgleichen` an einem eigenen Export eine Abweichung findet oder eine Prüfdatei unter `tests/abgleich/` nicht das Ergebnis aus `erwartet.json` liefert: dieselben Befunde und, als eigener Aufruf des Befehls, dieselben Exit-Codes mit und ohne `--streng` (bei neuen Tokenwerten die Prüfdateien mit anpassen),
 - ein SVG Skripte, Ereignis-Attribute, Verweise nach außen oder Farben außerhalb der Marke enthält oder `role="img"` und `aria-label` fehlen.
 
 Python 3.10 oder neuer genügt, weitere Pakete braucht es nicht.
@@ -62,10 +62,13 @@ python3 werkzeuge/marke.py abgleichen DATEI [--format FORMAT] [--streng]
 
 - Das Format folgt aus der Endung: `.css`, `.scss`, `.axaml` (Avalonia) und `.json` (WordPress, `theme.json`). Sonst `--format css`, `scss`, `avalonia` oder `wordpress`.
 - Verglichen wird jede Rolle in beiden Themen, die die Datei nennt. Dazu kommen Radius, Fokusrahmen, Schriften, Größen, Abstände und Satz, soweit das Format sie trägt. Groß- und Kleinschreibung zählen nicht, `#fff` ist `#FFFFFF`. Verweise wie `var(--fs-glut)`, `$fs-glut` oder `{StaticResource Fs.Glut.Color}` werden aufgelöst.
-- CSS: Hell steht im Grundblock, dunkel unter `@media (prefers-color-scheme: dark)` und unter `[data-theme="dark"]`. Neben `--fs-<rolle>` zählt auch `--wp--preset--color--<rolle>`, damit `style.css` der Website prüfbar ist.
+- CSS: Hell steht im Grundblock, dunkel unter `@media (prefers-color-scheme: dark)` und unter `[data-theme="dark"]`; `@media not …` kehrt das um. Neben `--fs-<rolle>` zählt auch `--wp--preset--color--<rolle>`, damit auch das `style.css` eines WordPress-Themes prüfbar ist. Escapes im Namen und Zeichenketten lesen sich wie im Browser.
+- Sass: `$fs_glut` ist `$fs-glut`, und `"glut"` als Map-Schlüssel ist `glut`. `$fs-hell` und `$fs-dunkel` müssen als Map stehen; `map.merge()` und Ähnliches lässt sich nicht auswerten und ist ein Fehler.
+- Avalonia: Ein Wert außerhalb der Themenwörterbücher gilt in beiden Themen, denn Avalonia sucht dort zuerst.
+- WordPress: Slugs zählen so, wie WordPress sie zur CSS-Variable macht (`Glut` ist `glut`, `flaecheTief` ist `flaeche-tief`), und der letzte Eintrag gewinnt. Verglichen werden auch die Fensterbreiten der fließenden Größen (`settings.typography.fluid`, ohne eigene Angabe `layout.wideSize` oder 1600px) und ein abweichendes `minFontSize`.
 - Jede Abweichung steht mit Rolle, Thema, Soll, Ist und Zeile in der Ausgabe, der Exit-Code ist dann 1. Die alten Glutwerte `#AB5019` und `#D9713C` nennt die Ausgabe überall, wo sie in der Datei stehen; auch das ist ein Fehler.
 - Was fehlt, ist ein Hinweis, mit `--streng` ein Fehler. Unbekannte Namen wie `--fs-orange` sind Hinweise.
-- Exit-Code 2: Die Datei fehlt, ist kein gültiges XML oder JSON, ist größer als 2 MB oder enthält keinen Wert der Marke.
+- Exit-Code 2: Die Datei fehlt, ist kein gültiges XML oder JSON, lässt sich nicht lesen (zu tief verschachtelt, zu große Zahl), ist größer als 2 MB oder enthält keinen Wert der Marke.
 - Nur Standardbibliothek, kein Netzzugriff. Die Datei wird nur gelesen.
 
 Im Projekt holt der Schritt dieses Repo auf einem festen Commit, nie über `main`. Einen neueren Commit zu übernehmen ist ein bewusster Schritt im Projekt.
@@ -76,7 +79,7 @@ git -C "$RUNNER_TEMP/marke" checkout --quiet <commit>
 python3 "$RUNNER_TEMP/marke/werkzeuge/marke.py" abgleichen app/styles/_firestrike.scss --streng
 ```
 
-Wo keine Actions laufen, gehört der Schritt in die lokale CI. Website-Theme und Anmeldeseite liegen in keinem Repo. Wer sie ändert, prüft danach von Hand mit demselben Befehl: `theme.json` als `wordpress`, `style.css` und das CSS der Anmeldeseite als `css`.
+Wo keine Actions laufen, gehört der Schritt in die lokale CI. Dateien ohne eigene CI prüft, wer sie ändert, danach von Hand mit demselben Befehl: eine `theme.json` als `wordpress`, ein `style.css` als `css`.
 
 ## Lizenz
 

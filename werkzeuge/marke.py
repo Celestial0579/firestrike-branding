@@ -17,10 +17,13 @@ Nur Standardbibliothek und kein Netzzugriff, damit alles ohne Installation läuf
 from __future__ import annotations
 
 import argparse
+import bisect
 import json
 import math
 import re
+import subprocess
 import sys
+import tempfile
 from collections import Counter
 from dataclasses import dataclass
 from decimal import ROUND_HALF_UP, Decimal
@@ -591,6 +594,10 @@ class Eintrag:
     verweis: tuple[str, str] | None = None    # (Rolle, Thema), wenn der Wert auf eine Farbrolle zeigt
 
 
+# Was ein Leser liefert: Einträge, unbekannte Namen (Name, Zeile) und Unlesbares (Name, Zeile, Grund).
+Gelesen = tuple[list[Eintrag], list[tuple[str, int]], list[tuple[str, int, str]]]
+
+
 @dataclass
 class Befund:
     art: str                                  # abweichung, alte-glut, fehlt oder unbekannt
@@ -603,8 +610,14 @@ class Befund:
         return " ".join(x for x in (self.art, self.name, self.thema) if x)
 
 
-def zeile_bei(text: str, stelle: int) -> int:
-    return text.count("\n", 0, stelle) + 1
+class Zeilen:
+    """Zeilennummer zu einer Stelle im Text. Die Zeilenanfänge werden einmal gezählt."""
+
+    def __init__(self, text: str) -> None:
+        self.anfaenge = [0] + [m.end() for m in re.finditer("\n", text)]
+
+    def __call__(self, stelle: int) -> int:
+        return bisect.bisect_right(self.anfaenge, stelle)
 
 
 def ohne_kommentare(text: str, zeilenkommentare: bool) -> str:
@@ -651,10 +664,12 @@ def css_thema(stapel: list[str]) -> str:
     for vorspann in stapel:
         v = re.sub(r"\s+", "", vorspann.lower())
         if v.startswith("@media"):
-            if "prefers-color-scheme:dark" in v and "not(" not in v:
-                thema = "dunkel"
-            elif "prefers-color-scheme:light" in v and "not(" not in v:
-                thema = "hell"
+            # "not" vor dem Merkmal kehrt die Abfrage um: @media not all and (prefers-color-scheme: dark)
+            nicht = "not" in v.split("prefers-color-scheme")[0]
+            if "prefers-color-scheme:dark" in v:
+                thema = "hell" if nicht else "dunkel"
+            elif "prefers-color-scheme:light" in v:
+                thema = "dunkel" if nicht else "hell"
         elif not v.startswith("@"):
             v = re.sub(r":not\([^)]*\)+", "", v)
             if re.search(r"\[data-theme=[\"']?dark[\"']?\]", v):
@@ -664,9 +679,24 @@ def css_thema(stapel: list[str]) -> str:
     return thema
 
 
+def css_name(name: str) -> str:
+    """Löst CSS-Escapes im Namen auf, wie Browser es tun: --fs-gl\\75 t ist --fs-glut."""
+    def zeichen(m: re.Match) -> str:
+        if m.group(1) is None:
+            return m.group(2)
+        wert = int(m.group(1), 16)
+        return chr(wert) if 0 < wert <= 0x10FFFF and not 0xD800 <= wert <= 0xDFFF else "\ufffd"
+
+    return re.sub(r"\\([0-9a-fA-F]{1,6})[ \t\n]?|\\(.)", zeichen, name)
+
+
 def css_deklarationen(text: str):
-    """Liefert (Name, Wert, Zeile, Thema) für jede Custom Property in einem Block."""
+    """Liefert (Name, Wert, Zeile, Thema) für jede Custom Property in einem Block.
+
+    Eine Zeichenkette endet spätestens am Zeilenende, wie im Browser (bad-string):
+    Sonst verdeckte ein offenes Anführungszeichen alle folgenden Deklarationen."""
     rein = ohne_kommentare(text, zeilenkommentare=False)
+    zeile_bei = Zeilen(rein)
     stapel: list[str] = []
     start, i, n, zeichen = 0, 0, len(rein), None
     while i < n:
@@ -674,7 +704,7 @@ def css_deklarationen(text: str):
         if zeichen:
             if c == "\\":
                 i += 1
-            elif c == zeichen:
+            elif c == zeichen or c == "\n":
                 zeichen = None
         elif c in "\"'":
             zeichen = c
@@ -683,10 +713,10 @@ def css_deklarationen(text: str):
             if c == "{":
                 stapel.append(stueck.strip())
             else:
-                m = re.match(r"\s*(--[A-Za-z0-9_-]+)\s*:(.*)\Z", stueck, re.S)
+                m = re.match(r"\s*(--(?:[A-Za-z0-9_-]|\\[0-9a-fA-F]{1,6}[ \t]?|\\[^\n])+)\s*:(.*)\Z", stueck, re.S)
                 if m and stapel:
-                    zeile = zeile_bei(rein, start + m.start(1))
-                    yield m.group(1), " ".join(m.group(2).split()), zeile, css_thema(stapel)
+                    zeile = zeile_bei(start + m.start(1))
+                    yield css_name(m.group(1)), " ".join(m.group(2).split()), zeile, css_thema(stapel)
                 if c == "}" and stapel:
                     stapel.pop()
             start = i + 1
@@ -700,7 +730,7 @@ def verweis_auf(wert: str, muster: str, rollen: set[str], thema: str) -> tuple[s
     return m.group(1), thema
 
 
-def css_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[str, int]]]:
+def css_lesen(daten: dict, text: str) -> Gelesen:
     alle = namen(daten)
     rollen = {f["rolle"] for f in daten["farben"]}
     eintraege, unbekannt = [], []
@@ -723,7 +753,7 @@ def css_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[str, in
             eintraege.append(Eintrag(schluessel, thema, wert, zeile, verweis))
         else:
             eintraege.append(Eintrag(schluessel, "", wert, zeile))
-    return eintraege, unbekannt
+    return eintraege, unbekannt, []
 
 
 def scss_wert(text: str, start: int) -> tuple[str, int]:
@@ -734,7 +764,7 @@ def scss_wert(text: str, start: int) -> tuple[str, int]:
         if zeichen:
             if c == "\\":
                 i += 1
-            elif c == zeichen:
+            elif c == zeichen or c == "\n":
                 zeichen = None
         elif c in "\"'":
             zeichen = c
@@ -766,41 +796,53 @@ def sass_map(wert: str) -> list[tuple[str, str, int]]:
             anfang = i + 1
     eintraege = []
     for teil, stelle in teile:
-        e = re.match(r"(\s*)([A-Za-z0-9_-]+)\s*:\s*(.*?)\s*\Z", teil, re.S)
+        # Sass behandelt "glut" und glut als denselben Schlüssel.
+        e = re.match(r"(\s*)([\"']?)([A-Za-z0-9_-]+)\2\s*:\s*(.*?)\s*\Z", teil, re.S)
         if e:
-            eintraege.append((e.group(2), " ".join(e.group(3).split()), stelle + len(e.group(1))))
+            eintraege.append((e.group(3), " ".join(e.group(4).split()), stelle + len(e.group(1))))
+        elif teil.strip():
+            return []
     return eintraege
 
 
 def scss_verweis(wert: str, rollen: set[str]) -> tuple[str, str] | None:
-    m = re.fullmatch(r"\$fs-([a-z-]+)", wert)
+    m = re.fullmatch(r"\$fs[-_]([a-z_-]+)", wert)
     if not m:
         return None
-    ziel = m.group(1)
+    ziel = m.group(1).replace("_", "-")
     if ziel.endswith("-dunkel") and ziel.removesuffix("-dunkel") in rollen:
         return ziel.removesuffix("-dunkel"), "dunkel"
     return (ziel, "hell") if ziel in rollen else None
 
 
-def scss_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[str, int]]]:
+def scss_lesen(daten: dict, text: str) -> Gelesen:
     alle = namen(daten)
     rollen = {f["rolle"] for f in daten["farben"]}
     rein = ohne_kommentare(text, zeilenkommentare=True)
-    eintraege, unbekannt = [], []
-    for m in re.finditer(r"\$(fs-[A-Za-z0-9_-]+)\s*:", rein):
+    zeile_bei = Zeilen(rein)
+    eintraege, unbekannt, unlesbar = [], [], []
+    # Sass behandelt - und _ in Namen gleich: $fs_glut ist $fs-glut.
+    for m in re.finditer(r"\$(fs[-_][A-Za-z0-9_-]+)\s*:", rein):
         roh, _ = scss_wert(rein, m.end())
         roh = re.sub(r"\s*!(?:default|global)\b", "", roh)
         wert = " ".join(roh.split())
-        zeile = zeile_bei(rein, m.start())
-        kurz = m.group(1).removeprefix("fs-")
+        zeile = zeile_bei(m.start())
+        name = m.group(1).replace("_", "-")
+        kurz = name.removeprefix("fs-")
         if kurz in THEMEN:
+            eintraege_map = sass_map(roh.strip())
+            if not eintraege_map:
+                # map.merge(), map.set() und Ähnliches lässt sich nicht auswerten.
+                unlesbar.append((f"${name}", zeile, "keine Map-Schreibweise (key: wert, …)"))
+                continue
             anfang = m.end() + (len(roh) - len(roh.lstrip()))
-            for schluessel, w, stelle in sass_map(roh.strip()):
-                z = zeile_bei(rein, anfang + stelle)
+            for schluessel, w, stelle in eintraege_map:
+                z = zeile_bei(anfang + stelle)
+                schluessel = schluessel.replace("_", "-")
                 if schluessel in rollen:
                     eintraege.append(Eintrag(schluessel, kurz, w, z, scss_verweis(w, rollen)))
                 else:
-                    unbekannt.append((f"${m.group(1)}.{schluessel}", z))
+                    unbekannt.append((f"${name}.{schluessel}", z))
             continue
         if kurz in ("groessen", "abstaende"):
             continue
@@ -809,12 +851,12 @@ def scss_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[str, i
             kurz, thema = kurz.removesuffix("-dunkel"), "dunkel"
         ziel = alle.get(kurz)
         if ziel is None:
-            unbekannt.append((f"${m.group(1)}", zeile))
+            unbekannt.append((f"${name}", zeile))
         elif ziel[0] == "farbe":
             eintraege.append(Eintrag(kurz, thema, wert, zeile, scss_verweis(wert, rollen)))
         else:
             eintraege.append(Eintrag(ziel[1], "", wert, zeile))
-    return eintraege, unbekannt
+    return eintraege, unbekannt, unlesbar
 
 
 def xaml_elemente(text: str) -> list[dict]:
@@ -860,7 +902,7 @@ def xaml_elemente(text: str) -> list[dict]:
     return elemente
 
 
-def avalonia_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[str, int]]]:
+def avalonia_lesen(daten: dict, text: str) -> Gelesen:
     rolle_von = {pascal(f["rolle"]): f["rolle"] for f in daten["farben"]}
     rollen = set(rolle_von.values())
     werte = {"ControlCornerRadius": "radius", "OverlayCornerRadius": "radius",
@@ -873,7 +915,11 @@ def avalonia_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[st
     eintraege, unbekannt = [], []
     for e in xaml_elemente(text):
         k = e["schluessel"]
-        if not k or e["themenwoerterbuch"]:
+        if e["themenwoerterbuch"]:
+            if k not in themen:
+                unbekannt.append((f"Themenwörterbuch {k}", e["zeile"]))
+            continue
+        if not k:
             continue
         wert = e["attrs"].get("Color", "") if e["lokal"] == "SolidColorBrush" else e["text"]
         if k in werte:
@@ -884,28 +930,45 @@ def avalonia_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[st
             if k.startswith("Fs."):
                 unbekannt.append((k, e["zeile"]))
             continue
-        thema = themen.get(e["thema"]) if e["thema"] is not None else "hell"
-        if thema is None:
+        # Ein Eintrag außerhalb der Themenwörterbücher gilt in jedem Thema: Avalonia sucht im
+        # Wörterbuch selbst, bevor es in ThemeDictionaries schaut (ResourceDictionary.TryGetResource).
+        if e["thema"] is None:
+            gilt_fuer = list(THEMEN)
+        elif themen.get(e["thema"]) is not None:
+            gilt_fuer = [themen[e["thema"]]]
+        else:
             continue
         ref = re.fullmatch(r"\{(?:Static|Dynamic|Theme)Resource\s+Fs\.([A-Za-z]+)(?:\.Color)?\s*\}", wert)
-        verweis = None
-        if ref and rolle_von.get(ref.group(1)) in rollen:
-            verweis = (rolle_von[ref.group(1)], thema)
-        eintraege.append(Eintrag(rolle_von[m.group(1)], thema, wert, e["zeile"], verweis))
-    return eintraege, unbekannt
+        for thema in gilt_fuer:
+            verweis = None
+            if ref and rolle_von.get(ref.group(1)) in rollen:
+                verweis = (rolle_von[ref.group(1)], thema)
+            eintraege.append(Eintrag(rolle_von[m.group(1)], thema, wert, e["zeile"], verweis))
+    return eintraege, unbekannt, []
 
 
-def wordpress_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[str, int]]]:
+def wp_slug(slug: str) -> str:
+    """Slug so, wie WordPress ihn zur CSS-Variable macht (_wp_to_kebab_case): Glut wird glut,
+    flaecheTief wird flaeche-tief."""
+    gross, klein = "A-Z\u00c0-\u00d6\u00d8-\u00de", "a-z\u00df-\u00f6\u00f8-\u00ff"
+    woerter = re.findall(f"[{gross}]?[{klein}]+|[{gross}]+(?![{klein}])|\\d+|[{gross}]", slug.replace("'", ""))
+    return "-".join(woerter).lower()
+
+
+def wordpress_lesen(daten: dict, text: str) -> Gelesen:
     try:
         theme = json.loads(text)
     except json.JSONDecodeError as fehler:
         raise Unbrauchbar(f"kein gültiges JSON: {fehler}") from None
+    except (RecursionError, ValueError) as fehler:
+        raise Unbrauchbar(f"JSON lässt sich nicht lesen: {type(fehler).__name__}") from None
     if not isinstance(theme, dict):
         raise Unbrauchbar("theme.json muss ein Objekt sein")
+    zeile_bei = Zeilen(text)
 
     def zeile(slug: str) -> int:
         m = re.search(r'"slug"\s*:\s*"' + re.escape(slug) + '"', text)
-        return zeile_bei(text, m.start()) if m else 0
+        return zeile_bei(m.start()) if m else 0
 
     def holen(*pfad):
         wert = theme
@@ -914,9 +977,15 @@ def wordpress_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[s
         return wert
 
     def liste(*pfad) -> list[dict]:
+        """Einträge mit Slug, nach dem Slug, den WordPress daraus macht; der letzte gewinnt wie dort."""
         wert = holen(*pfad)
-        return [x for x in wert if isinstance(x, dict) and isinstance(x.get("slug"), str)] \
-            if isinstance(wert, list) else []
+        if not isinstance(wert, list):
+            return []
+        nach_slug: dict[str, dict] = {}
+        for x in wert:
+            if isinstance(x, dict) and isinstance(x.get("slug"), str):
+                nach_slug[wp_slug(x["slug"])] = dict(x, slug=wp_slug(x["slug"]), roh=x["slug"])
+        return list(nach_slug.values())
 
     rollen = {f["rolle"] for f in daten["farben"]}
     groesse_von = {s["wordpress"]: s["rolle"] for s in daten["groessen"]["stufen"]}
@@ -924,27 +993,39 @@ def wordpress_lesen(daten: dict, text: str) -> tuple[list[Eintrag], list[tuple[s
     eintraege, unbekannt = [], []
     for p in liste("settings", "color", "palette"):
         if p["slug"] in rollen:
-            eintraege.append(Eintrag(p["slug"], "hell", str(p.get("color", "")), zeile(p["slug"])))
+            eintraege.append(Eintrag(p["slug"], "hell", str(p.get("color", "")), zeile(p["roh"])))
         else:
-            unbekannt.append((f"Palette {p['slug']}", zeile(p["slug"])))
+            unbekannt.append((f"Palette {p['roh']}", zeile(p["roh"])))
     for s in liste("settings", "typography", "fontFamilies"):
         if s["slug"] in daten["schrift"]:
-            eintraege.append(Eintrag(f"schrift-{s['slug']}", "", str(s.get("fontFamily", "")), zeile(s["slug"])))
+            eintraege.append(Eintrag(f"schrift-{s['slug']}", "", str(s.get("fontFamily", "")), zeile(s["roh"])))
     for s in liste("settings", "typography", "fontSizes"):
         if s["slug"] in groesse_von:
             fluid = s.get("fluid") if isinstance(s.get("fluid"), dict) else {}
             ist = wp_groesse(str(s.get("size", "")), fluid.get("min"), fluid.get("max"))
-            eintraege.append(Eintrag(f"groesse-{groesse_von[s['slug']]}", "", ist, zeile(s["slug"])))
+            eintraege.append(Eintrag(f"groesse-{groesse_von[s['slug']]}", "", ist, zeile(s["roh"])))
     for s in liste("settings", "spacing", "spacingSizes"):
         if s["slug"] in stufen:
-            eintraege.append(Eintrag(f"abstand-{s['slug']}", "", str(s.get("size", "")), zeile(s["slug"])))
+            eintraege.append(Eintrag(f"abstand-{s['slug']}", "", str(s.get("size", "")), zeile(s["roh"])))
+    # Die Fensterbreiten der fließenden Größen. Ohne fluid oder mit false rechnet WordPress nicht
+    # fließend; ohne eigene Breiten gelten 320px und layout.wideSize, sonst 1600px.
+    fluid, breit = holen("settings", "typography", "fluid"), holen("settings", "layout", "wideSize")
+    if fluid in (None, False):
+        ist = "aus"
+    else:
+        f = fluid if isinstance(fluid, dict) else {}
+        ist = f"{f.get('minViewportWidth') or '320px'} bis " \
+              f"{f.get('maxViewportWidth') or (breit if isinstance(breit, str) and breit else '1600px')}"
+        if f.get("minFontSize"):
+            ist += f", minFontSize {f['minFontSize']}"
+    eintraege.append(Eintrag("fluessig", "", ist, 0))
     for schluessel, pfad in (("zeilenhoehe-text", ("styles", "typography", "lineHeight")),
                              ("zeilenhoehe-ueberschrift", ("styles", "elements", "heading", "typography", "lineHeight")),
                              ("staerke-ueberschrift", ("styles", "elements", "heading", "typography", "fontWeight"))):
         wert = holen(*pfad)
         if wert is not None:
             eintraege.append(Eintrag(schluessel, "", str(wert), 0))
-    return eintraege, unbekannt
+    return eintraege, unbekannt, []
 
 
 LESER = {"css": css_lesen, "scss": scss_lesen, "avalonia": avalonia_lesen, "wordpress": wordpress_lesen}
@@ -970,6 +1051,9 @@ def soll_werte(daten: dict, fmt: str) -> dict[str, tuple[str, str]]:
     w["zeilenhoehe-text"] = (satz["zeilenhoehe-text"], "zahl")
     w["zeilenhoehe-ueberschrift"] = (satz["zeilenhoehe-ueberschrift"], "zahl")
     w["staerke-ueberschrift"] = (satz["staerke-ueberschrift"], "staerke")
+    if fmt == "wordpress":
+        fluessig = daten["groessen"]["fluessig"]
+        w["fluessig"] = (f"{fluessig['von']} bis {fluessig['bis']}", "fluessig")
     return w
 
 
@@ -1005,6 +1089,15 @@ def gleich(soll: str, ist: str, art: str, xaml: bool) -> bool:
         def liste(x: str) -> list[str]:
             return [" ".join(t.strip().strip("\"'").split()).lower() for t in x.split(",")]
         return liste(soll) == liste(ist)
+    if art == "fluessig":
+        # "320px bis 64rem", dazu höchstens minFontSize 14px, die Vorgabe von WordPress.
+        def teile(x: str) -> tuple[Decimal, Decimal, Decimal] | None:
+            m = re.fullmatch(r"(\S+) bis (\S+?)(?:, minFontSize (\S+))?", x.strip())
+            if not m or not all(LAENGE.fullmatch(g) for g in m.groups() if g):
+                return None
+            return rem(m.group(1)), rem(m.group(2)), rem(m.group(3) or "14px")
+        a, b = teile(soll), teile(ist)
+        return a is not None and a == b
     if art == "staerke":
         def stufe(x: str) -> int | None:
             x = einfach(x)
@@ -1038,8 +1131,8 @@ def abgleich(daten: dict, pfad: Path, fmt: str | None) -> tuple[str, list[Befund
     except (OSError, UnicodeDecodeError) as fehler:
         raise Unbrauchbar(f"nicht lesbar: {fehler}") from None
     xaml = fmt == "avalonia"
-    eintraege, unbekannt = LESER[fmt](daten, text)
-    if not eintraege:
+    eintraege, unbekannt, unlesbar = LESER[fmt](daten, text)
+    if not [e for e in eintraege if e.name != "fluessig"]:   # fluessig liest theme.json immer mit
         raise Unbrauchbar(f"keine Werte der Marke gefunden; ist das die Kopie, und stimmt das Format {fmt}?")
     befunde: list[Befund] = []
     wert = daten["wert"]
@@ -1083,9 +1176,12 @@ def abgleich(daten: dict, pfad: Path, fmt: str | None) -> tuple[str, list[Befund
     for schluessel in soll_w:
         if (schluessel, "") not in da:
             befunde.append(Befund("fehlt", schluessel, "", f"fehlt: {schluessel}"))
+    zeile_bei = Zeilen(text)
+    for name, zeile, grund in unlesbar:
+        befunde.append(Befund("unlesbar", name, "", f"nicht auswertbar: {name} (Zeile {zeile}): {grund}"))
     for m in ALTE_GLUT.finditer(text):
         befunde.append(Befund("alte-glut", m.group(0).upper(), "",
-                              f"Alter Glutwert {m.group(0)} in Zeile {zeile_bei(text, m.start())}, "
+                              f"Alter Glutwert {m.group(0)} in Zeile {zeile_bei(m.start())}, "
                               f"heute hell {wert['hell']['glut']} und dunkel {wert['dunkel']['glut']}"))
     for name, zeile in unbekannt:
         befunde.append(Befund("unbekannt", name, "", f"unbekannt: {name}" + (f" (Zeile {zeile})" if zeile else "")))
@@ -1093,7 +1189,7 @@ def abgleich(daten: dict, pfad: Path, fmt: str | None) -> tuple[str, list[Befund
 
 
 def ist_fehler(b: Befund, streng: bool) -> bool:
-    return b.art in ("abweichung", "alte-glut") or (streng and b.art == "fehlt")
+    return b.art in ("abweichung", "alte-glut", "unlesbar") or (streng and b.art == "fehlt")
 
 
 def abgleichen(argv: list[str]) -> int:
@@ -1138,8 +1234,15 @@ EIGENE_EXPORTE = {
 ABGLEICH_TESTS = "tests/abgleich/erwartet.json"
 
 
+def cli(pfad: Path, *optionen: str) -> int:
+    """Exit-Code von `marke.py abgleichen` als eigener Prozess, so wie ein Projekt es aufruft."""
+    lauf = subprocess.run([sys.executable, str(WURZEL / "werkzeuge" / "marke.py"), "abgleichen", str(pfad), *optionen],
+                          capture_output=True, text=True, timeout=120)
+    return lauf.returncode
+
+
 def abgleich_pruefen(daten: dict) -> tuple[list[str], int]:
-    """Eigene Exporte und die Testdateien unter tests/abgleich."""
+    """Eigene Exporte und die Testdateien unter tests/abgleich, im Prozess und über den Befehl."""
     fehler, anzahl = [], 0
     for pfad, streng in EIGENE_EXPORTE.items():
         try:
@@ -1150,22 +1253,36 @@ def abgleich_pruefen(daten: dict) -> tuple[list[str], int]:
         anzahl += 1
         fehler += [f"abgleichen {pfad}: {b.text}" for b in befunde if ist_fehler(b, streng)]
     tests = json.loads((WURZEL / ABGLEICH_TESTS).read_text(encoding="utf-8"))
-    for name, erwartet in tests.items():
-        pfad = WURZEL / "tests" / "abgleich" / name
-        try:
-            _, befunde, _ = abgleich(daten, pfad, erwartet.get("format"))
-        except Unbrauchbar as f:
-            fehler.append(f"Abgleichtest {name}: {f}")
-            continue
-        anzahl += 1
-        ist, soll = Counter(b.kennung for b in befunde), Counter(erwartet["befunde"])
-        if ist != soll:
-            zu_viel = sorted((ist - soll).elements())
-            fehlen = sorted((soll - ist).elements())
-            fehler.append(f"Abgleichtest {name}: unerwartet {zu_viel or '-'}, nicht gefunden {fehlen or '-'}")
-        fehler_ist = any(ist_fehler(b, erwartet.get("streng", False)) for b in befunde)
-        if fehler_ist != (erwartet["exit"] == 1):
-            fehler.append(f"Abgleichtest {name}: Exit-Code wäre {int(fehler_ist)}, erwartet {erwartet['exit']}")
+    with tempfile.TemporaryDirectory() as tmp:
+        # Unbrauchbares, das nicht als Datei ins Repo gehört: zu groß und zu tief verschachtelt.
+        erzeugt = {"erzeugt/zu-gross.css": ":root {\n" + "  --fs-glut: #A24C18;\n" * 130000 + "}\n",
+                   "erzeugt/zu-tief.json": "[" * 100000 + "]" * 100000}
+        for name, inhalt in erzeugt.items():
+            (Path(tmp) / name).parent.mkdir(exist_ok=True)
+            (Path(tmp) / name).write_text(inhalt, encoding="utf-8")
+            tests[name] = {"exit": 2, "exit_streng": 2, "befunde": None}
+        for name, erwartet in tests.items():
+            pfad = (Path(tmp) if name in erzeugt else WURZEL / "tests" / "abgleich") / name
+            anzahl += 1
+            try:
+                _, befunde, _ = abgleich(daten, pfad, None)
+            except Unbrauchbar as f:
+                if erwartet["befunde"] is not None:
+                    fehler.append(f"Abgleichtest {name}: {f}")
+                befunde = None
+            if erwartet["befunde"] is None and befunde is not None:
+                fehler.append(f"Abgleichtest {name}: hätte als unbrauchbar abgelehnt werden müssen")
+            elif befunde is not None:
+                ist, soll = Counter(b.kennung for b in befunde), Counter(erwartet["befunde"])
+                if ist != soll:
+                    zu_viel = sorted((ist - soll).elements())
+                    fehlen = sorted((soll - ist).elements())
+                    fehler.append(f"Abgleichtest {name}: unerwartet {zu_viel or '-'}, nicht gefunden {fehlen or '-'}")
+            for optionen, schluessel in (((), "exit"), (("--streng",), "exit_streng")):
+                rc = cli(pfad, *optionen)
+                if rc != erwartet[schluessel]:
+                    fehler.append(f"Abgleichtest {name}{' --streng' if optionen else ''}: "
+                                  f"Exit-Code {rc}, erwartet {erwartet[schluessel]}")
     return fehler, anzahl
 
 
