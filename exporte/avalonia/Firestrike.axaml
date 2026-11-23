@@ -1,6 +1,6 @@
 <!--
   Firestrike: Feuerstein auf Stahl.
-  Erzeugt aus tokens/firestrike.json (Version 1.0.0) von werkzeuge/marke.py.
+  Erzeugt aus tokens/firestrike.json (Version 1.1.0) von werkzeuge/marke.py.
   Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
   Farben heißen nach ihrer Rolle (Fs.Grund, Fs.Text …), nie nach dem Farbton.
 -->
@@ -89,4 +89,21 @@
   <FontFamily x:Key="Fs.Font.Serif">Palatino Linotype, Book Antiqua, Georgia</FontFamily>
   <FontFamily x:Key="Fs.Font.Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
   <FontFamily x:Key="Fs.Font.Mono">Cascadia Mono, Consolas</FontFamily>
+  <!-- Schriftgrößen und Abstände in Pixeln (1rem = 16 px). Apps nehmen die feste Größe. -->
+  <x:Double x:Key="Fs.Groesse.Klein">14</x:Double>
+  <x:Double x:Key="Fs.Groesse.Normal">17</x:Double>
+  <x:Double x:Key="Fs.Groesse.Gross">24</x:Double>
+  <x:Double x:Key="Fs.Groesse.SehrGross">35.2</x:Double>
+  <x:Double x:Key="Fs.Groesse.Titel">48</x:Double>
+  <x:Double x:Key="Fs.Abstand.10">5.6</x:Double>
+  <x:Double x:Key="Fs.Abstand.20">11.2</x:Double>
+  <x:Double x:Key="Fs.Abstand.30">17.6</x:Double>
+  <x:Double x:Key="Fs.Abstand.40">27.2</x:Double>
+  <x:Double x:Key="Fs.Abstand.50">41.6</x:Double>
+  <x:Double x:Key="Fs.Abstand.60">64</x:Double>
+  <x:Double x:Key="Fs.Abstand.70">96</x:Double>
+  <!-- Zeilenhöhen als Faktor der Schriftgröße, Stärke der Überschriften. -->
+  <x:Double x:Key="Fs.Zeilenhoehe.Text">1.65</x:Double>
+  <x:Double x:Key="Fs.Zeilenhoehe.Ueberschrift">1.2</x:Double>
+  <FontWeight x:Key="Fs.Staerke.Ueberschrift">SemiBold</FontWeight>
 </ResourceDictionary>

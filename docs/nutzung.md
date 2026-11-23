@@ -43,7 +43,7 @@ So setzen Projekte die Marke ein. Die Werte stehen in [`tokens/firestrike.json`]
 | Sans: Fließtext, Bedienung | system-ui, Segoe UI, Roboto, Helvetica Neue, Arial | Segoe UI Variable Text, Segoe UI |
 | Mono: Quelltext | ui-monospace, SF Mono, Cascadia Mono, Menlo, Consolas | Cascadia Mono, Consolas |
 
-Überschriften in Serif, Stärke 600, Zeilenhöhe 1,2, Farbe Stahl tief. Fließtext in Sans, Zeilenhöhe 1,65.
+Überschriften in Serif, Stärke 600, Zeilenhöhe 1,2, Farbe Stahl tief. Fließtext in Sans, Zeilenhöhe 1,65. Schriftgrößen, Abstände und Zeilenhöhen stehen mit ihren Namen je Plattform in [masse.md](masse.md).
 
 ## Logos
 

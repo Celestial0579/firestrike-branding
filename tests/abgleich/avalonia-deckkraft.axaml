@@ -1,0 +1,75 @@
+<!-- Kopie im Projekt: Pinsel verweisen auf die Farben, Werte teils mit Deckkraft. Glut hell mit halber Deckkraft (#80…): darf nicht passen. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <Color x:Key="Fs.Grund.Color">#FFEFF0ED</Color>
+      <SolidColorBrush x:Key="Fs.Grund" Color="{StaticResource Fs.Grund.Color}" />
+      <Color x:Key="Fs.Flaeche.Color">#FFFFFF</Color>
+      <SolidColorBrush x:Key="Fs.Flaeche" Color="{StaticResource Fs.Flaeche.Color}" />
+      <Color x:Key="Fs.FlaecheTief.Color">#E3E5E1</Color>
+      <SolidColorBrush x:Key="Fs.FlaecheTief" Color="{StaticResource Fs.FlaecheTief.Color}" />
+      <Color x:Key="Fs.Linie.Color">#FFC9CCC6</Color>
+      <SolidColorBrush x:Key="Fs.Linie" Color="{StaticResource Fs.Linie.Color}" />
+      <Color x:Key="Fs.Text.Color">#1B1E1C</Color>
+      <SolidColorBrush x:Key="Fs.Text" Color="{StaticResource Fs.Text.Color}" />
+      <Color x:Key="Fs.TextLeise.Color">#5A605B</Color>
+      <SolidColorBrush x:Key="Fs.TextLeise" Color="{StaticResource Fs.TextLeise.Color}" />
+      <Color x:Key="Fs.Stahl.Color">#FF33414B</Color>
+      <SolidColorBrush x:Key="Fs.Stahl" Color="{StaticResource Fs.Stahl.Color}" />
+      <Color x:Key="Fs.StahlTief.Color">#212B33</Color>
+      <SolidColorBrush x:Key="Fs.StahlTief" Color="{StaticResource Fs.StahlTief.Color}" />
+      <Color x:Key="Fs.Funke.Color">#E8A33D</Color>
+      <SolidColorBrush x:Key="Fs.Funke" Color="{StaticResource Fs.Funke.Color}" />
+      <Color x:Key="Fs.Glut.Color">#80A24C18</Color>
+      <SolidColorBrush x:Key="Fs.Glut" Color="{StaticResource Fs.Glut.Color}" />
+      <Color x:Key="Fs.Fokus.Color">#A24C18</Color>
+      <SolidColorBrush x:Key="Fs.Fokus" Color="{StaticResource Fs.Fokus.Color}" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="Fs.Grund.Color">#FF141715</Color>
+      <SolidColorBrush x:Key="Fs.Grund" Color="{StaticResource Fs.Grund.Color}" />
+      <Color x:Key="Fs.Flaeche.Color">#1C201D</Color>
+      <SolidColorBrush x:Key="Fs.Flaeche" Color="{StaticResource Fs.Flaeche.Color}" />
+      <Color x:Key="Fs.FlaecheTief.Color">#262B27</Color>
+      <SolidColorBrush x:Key="Fs.FlaecheTief" Color="{StaticResource Fs.FlaecheTief.Color}" />
+      <Color x:Key="Fs.Linie.Color">#FF38403A</Color>
+      <SolidColorBrush x:Key="Fs.Linie" Color="{StaticResource Fs.Linie.Color}" />
+      <Color x:Key="Fs.Text.Color">#E8EBE7</Color>
+      <SolidColorBrush x:Key="Fs.Text" Color="{StaticResource Fs.Text.Color}" />
+      <Color x:Key="Fs.TextLeise.Color">#A5ADA6</Color>
+      <SolidColorBrush x:Key="Fs.TextLeise" Color="{StaticResource Fs.TextLeise.Color}" />
+      <Color x:Key="Fs.Stahl.Color">#FF7E93A1</Color>
+      <SolidColorBrush x:Key="Fs.Stahl" Color="{StaticResource Fs.Stahl.Color}" />
+      <Color x:Key="Fs.StahlTief.Color">#B4C6D1</Color>
+      <SolidColorBrush x:Key="Fs.StahlTief" Color="{StaticResource Fs.StahlTief.Color}" />
+      <Color x:Key="Fs.Funke.Color">#F2B558</Color>
+      <SolidColorBrush x:Key="Fs.Funke" Color="{StaticResource Fs.Funke.Color}" />
+      <Color x:Key="Fs.Glut.Color">#FFDB7745</Color>
+      <SolidColorBrush x:Key="Fs.Glut" Color="{StaticResource Fs.Glut.Color}" />
+      <Color x:Key="Fs.Fokus.Color">#F2B558</Color>
+      <SolidColorBrush x:Key="Fs.Fokus" Color="{StaticResource Fs.Fokus.Color}" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+  <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
+  <Thickness x:Key="Fs.FocusThickness">2</Thickness>
+  <Thickness x:Key="Fs.FocusOffset">2</Thickness>
+  <FontFamily x:Key="Fs.Font.Serif">Palatino Linotype, Book Antiqua, Georgia</FontFamily>
+  <FontFamily x:Key="Fs.Font.Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
+  <FontFamily x:Key="Fs.Font.Mono">Cascadia Mono, Consolas</FontFamily>
+  <x:Double x:Key="Fs.Groesse.Klein">14</x:Double>
+  <x:Double x:Key="Fs.Groesse.Normal">17</x:Double>
+  <x:Double x:Key="Fs.Groesse.Gross">24</x:Double>
+  <x:Double x:Key="Fs.Groesse.SehrGross">35.2</x:Double>
+  <x:Double x:Key="Fs.Groesse.Titel">48</x:Double>
+  <x:Double x:Key="Fs.Abstand.10">5.6</x:Double>
+  <x:Double x:Key="Fs.Abstand.20">11.2</x:Double>
+  <x:Double x:Key="Fs.Abstand.30">17.6</x:Double>
+  <x:Double x:Key="Fs.Abstand.40">27.2</x:Double>
+  <x:Double x:Key="Fs.Abstand.50">41.6</x:Double>
+  <x:Double x:Key="Fs.Abstand.60">64</x:Double>
+  <x:Double x:Key="Fs.Abstand.70">96</x:Double>
+  <x:Double x:Key="Fs.Zeilenhoehe.Text">1.65</x:Double>
+  <x:Double x:Key="Fs.Zeilenhoehe.Ueberschrift">1.20</x:Double>
+  <FontWeight x:Key="Fs.Staerke.Ueberschrift">SemiBold</FontWeight>
+</ResourceDictionary>

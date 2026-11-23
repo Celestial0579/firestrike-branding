@@ -1,10 +1,11 @@
 /*
  * Firestrike: Feuerstein auf Stahl.
- * Erzeugt aus tokens/firestrike.json (Version 1.0.0) von werkzeuge/marke.py.
+ * Erzeugt aus tokens/firestrike.json (Version 1.1.0) von werkzeuge/marke.py.
  * Nicht von Hand ändern, sondern in https://github.com/Celestial0579/firestrike-branding
  *
  * Hell ist der Standard, Dunkel folgt dem Gerät (prefers-color-scheme).
  * data-theme="light" oder data-theme="dark" am <html> legt das Thema fest.
+ * Fließende Schriftgrößen wachsen mit der Fensterbreite, siehe docs/masse.md.
  */
 :root {
   color-scheme: light;
@@ -36,6 +37,21 @@
   --fs-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --fs-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --fs-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
+  --fs-groesse-klein: 0.875rem;
+  --fs-groesse-normal: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.427), 1.0625rem);
+  --fs-groesse-gross: clamp(1.3rem, 1.3rem + ((1vw - 0.2rem) * 0.682), 1.6rem);
+  --fs-groesse-sehr-gross: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 1.818), 2.6rem);
+  --fs-groesse-titel: clamp(2.2rem, 2.2rem + ((1vw - 0.2rem) * 2.727), 3.4rem);
+  --fs-abstand-10: 0.35rem;
+  --fs-abstand-20: 0.7rem;
+  --fs-abstand-30: 1.1rem;
+  --fs-abstand-40: 1.7rem;
+  --fs-abstand-50: 2.6rem;
+  --fs-abstand-60: 4rem;
+  --fs-abstand-70: 6rem;
+  --fs-zeilenhoehe-text: 1.65;
+  --fs-zeilenhoehe-ueberschrift: 1.2;
+  --fs-staerke-ueberschrift: 600;
 }
 
 @media (prefers-color-scheme: dark) {

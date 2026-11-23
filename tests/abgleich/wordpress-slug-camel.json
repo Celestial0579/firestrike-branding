@@ -1,0 +1,192 @@
+{
+ "$schema": "https://schemas.wp.org/trunk/theme.json",
+ "version": 3,
+ "settings": {
+  "color": {
+   "defaultPalette": false,
+   "defaultGradients": false,
+   "custom": false,
+   "palette": [
+    {
+     "slug": "grund",
+     "name": "Grund",
+     "color": "#EFF0ED"
+    },
+    {
+     "slug": "flaeche",
+     "name": "Fläche",
+     "color": "#FFFFFF"
+    },
+    {
+     "slug": "flaecheTief",
+     "name": "Fläche tief",
+     "color": "#000000"
+    },
+    {
+     "slug": "linie",
+     "name": "Linie",
+     "color": "#C9CCC6"
+    },
+    {
+     "slug": "text",
+     "name": "Text",
+     "color": "#1B1E1C"
+    },
+    {
+     "slug": "text-leise",
+     "name": "Text leise",
+     "color": "#5A605B"
+    },
+    {
+     "slug": "stahl",
+     "name": "Stahl",
+     "color": "#33414B"
+    },
+    {
+     "slug": "stahl-tief",
+     "name": "Stahl tief",
+     "color": "#212B33"
+    },
+    {
+     "slug": "funke",
+     "name": "Funke",
+     "color": "#E8A33D"
+    },
+    {
+     "slug": "glut",
+     "name": "Glut",
+     "color": "#A24C18"
+    }
+   ]
+  },
+  "typography": {
+   "defaultFontSizes": false,
+   "fluid": {
+    "minViewportWidth": "320px",
+    "maxViewportWidth": "64rem"
+   },
+   "fontFamilies": [
+    {
+     "slug": "serif",
+     "name": "Serif",
+     "fontFamily": "\"Iowan Old Style\", \"Palatino Linotype\", Palatino, \"Book Antiqua\", Georgia, serif"
+    },
+    {
+     "slug": "sans",
+     "name": "Sans",
+     "fontFamily": "ui-sans-serif, system-ui, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"
+    },
+    {
+     "slug": "mono",
+     "name": "Mono",
+     "fontFamily": "ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace"
+    }
+   ],
+   "fontSizes": [
+    {
+     "slug": "small",
+     "name": "Klein",
+     "size": "0.875rem"
+    },
+    {
+     "slug": "medium",
+     "name": "Normal",
+     "size": "1.0625rem",
+     "fluid": {
+      "min": "0.875rem",
+      "max": "1.0625rem"
+     }
+    },
+    {
+     "slug": "large",
+     "name": "Groß",
+     "size": "1.5rem",
+     "fluid": {
+      "min": "1.3rem",
+      "max": "1.6rem"
+     }
+    },
+    {
+     "slug": "x-large",
+     "name": "Sehr groß",
+     "size": "2.2rem",
+     "fluid": {
+      "min": "1.8rem",
+      "max": "2.6rem"
+     }
+    },
+    {
+     "slug": "xx-large",
+     "name": "Titel",
+     "size": "3rem",
+     "fluid": {
+      "min": "2.2rem",
+      "max": "3.4rem"
+     }
+    }
+   ]
+  },
+  "spacing": {
+   "defaultSpacingSizes": false,
+   "spacingSizes": [
+    {
+     "slug": "10",
+     "name": "1",
+     "size": "0.35rem"
+    },
+    {
+     "slug": "20",
+     "name": "2",
+     "size": "0.7rem"
+    },
+    {
+     "slug": "30",
+     "name": "3",
+     "size": "1.1rem"
+    },
+    {
+     "slug": "40",
+     "name": "4",
+     "size": "1.7rem"
+    },
+    {
+     "slug": "50",
+     "name": "5",
+     "size": "2.6rem"
+    },
+    {
+     "slug": "60",
+     "name": "6",
+     "size": "4rem"
+    },
+    {
+     "slug": "70",
+     "name": "7",
+     "size": "6rem"
+    }
+   ]
+  },
+  "layout": {
+   "contentSize": "42rem",
+   "wideSize": "64rem"
+  }
+ },
+ "styles": {
+  "typography": {
+   "lineHeight": "1.65"
+  },
+  "elements": {
+   "heading": {
+    "typography": {
+     "fontWeight": "600",
+     "lineHeight": "1.2"
+    }
+   },
+   "link": {
+    "color": {
+     "text": "var:preset|color|glut"
+    }
+   }
+  }
+ }
+}
