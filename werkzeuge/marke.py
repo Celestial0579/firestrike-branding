@@ -13,8 +13,8 @@
         erzeugt die Rasterbilder unter exporte/raster neu; braucht rsvg-convert
         (Paket librsvg2-bin), sonst nur die Standardbibliothek
     python3 werkzeuge/marke.py wortmarke SCHRIFT.ttf
-        setzt die Wortmarke der Logos als Pfade nach logos/pfade; SCHRIFT ist
-        Liberation Sans Bold (SIL Open Font License 1.1)
+        setzt die Wortmarke aus logos/quellen/*-text.svg als Pfade in die Logos
+        unter logos/; SCHRIFT ist Liberation Sans Bold (SIL Open Font License 1.1)
 
 Nur Standardbibliothek und kein Netzzugriff, damit alles ohne Installation läuft
 (Python 3.10 oder neuer).
@@ -54,8 +54,6 @@ ZAHL = re.compile(r"\d+(?:\.\d+)?")
 EINFARBIG = {
     "logos/firestrike-logo-mono-light.svg": ("logos/firestrike-logo-light.svg", "text", "hell"),
     "logos/firestrike-logo-mono-dark.svg": ("logos/firestrike-logo-dark.svg", "text", "dunkel"),
-    "logos/pfade/firestrike-logo-mono-light.svg": ("logos/pfade/firestrike-logo-light.svg", "text", "hell"),
-    "logos/pfade/firestrike-logo-mono-dark.svg": ("logos/pfade/firestrike-logo-dark.svg", "text", "dunkel"),
 }
 
 # Was in keinem SVG der Marke stehen darf, weil es Code ausführt oder etwas nachlädt.
@@ -1383,11 +1381,12 @@ def raster_pruefen() -> tuple[list[str], int]:
 # --- Wortmarke als Pfade ---------------------------------------------------------
 
 WORTMARKE_SCHRIFT = ("Liberation Sans", "Bold")
-PFADE_QUELLE = "logos/pfade/quelle.json"
-# Logo mit Pfaden -> Logo mit Text, aus dem es entsteht
+PFADE_QUELLE = "logos/quellen/quelle.json"
+# Logo mit Pfaden -> Logo mit Text, aus dem es entsteht. Die Text-Fassungen sind die
+# Quelle zum Bearbeiten (Laufweite, Lage); die Logos selbst tragen nur noch Pfade.
 PFAD_LOGOS = {
-    "logos/pfade/firestrike-logo-light.svg": "logos/firestrike-logo-light.svg",
-    "logos/pfade/firestrike-logo-dark.svg": "logos/firestrike-logo-dark.svg",
+    "logos/firestrike-logo-light.svg": "logos/quellen/firestrike-logo-light-text.svg",
+    "logos/firestrike-logo-dark.svg": "logos/quellen/firestrike-logo-dark-text.svg",
 }
 
 
