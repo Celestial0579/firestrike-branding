@@ -12,6 +12,9 @@
     python3 werkzeuge/marke.py raster
         erzeugt die Rasterbilder unter exporte/raster neu; braucht rsvg-convert
         (Paket librsvg2-bin), sonst nur die Standardbibliothek
+    python3 werkzeuge/marke.py wortmarke SCHRIFT.ttf
+        setzt die Wortmarke der Logos als Pfade nach logos/pfade; SCHRIFT ist
+        Liberation Sans Bold (SIL Open Font License 1.1)
 
 Nur Standardbibliothek und kein Netzzugriff, damit alles ohne Installation läuft
 (Python 3.10 oder neuer).
@@ -51,6 +54,8 @@ ZAHL = re.compile(r"\d+(?:\.\d+)?")
 EINFARBIG = {
     "logos/firestrike-logo-mono-light.svg": ("logos/firestrike-logo-light.svg", "text", "hell"),
     "logos/firestrike-logo-mono-dark.svg": ("logos/firestrike-logo-dark.svg", "text", "dunkel"),
+    "logos/pfade/firestrike-logo-mono-light.svg": ("logos/pfade/firestrike-logo-light.svg", "text", "hell"),
+    "logos/pfade/firestrike-logo-mono-dark.svg": ("logos/pfade/firestrike-logo-dark.svg", "text", "dunkel"),
 }
 
 # Was in keinem SVG der Marke stehen darf, weil es Code ausführt oder etwas nachlädt.
@@ -1375,6 +1380,218 @@ def raster_pruefen() -> tuple[list[str], int]:
     return fehler, len(RASTERBILDER)
 
 
+# --- Wortmarke als Pfade ---------------------------------------------------------
+
+WORTMARKE_SCHRIFT = ("Liberation Sans", "Bold")
+PFADE_QUELLE = "logos/pfade/quelle.json"
+# Logo mit Pfaden -> Logo mit Text, aus dem es entsteht
+PFAD_LOGOS = {
+    "logos/pfade/firestrike-logo-light.svg": "logos/firestrike-logo-light.svg",
+    "logos/pfade/firestrike-logo-dark.svg": "logos/firestrike-logo-dark.svg",
+}
+
+
+class Schrift:
+    """Liest aus einer TrueType-Datei nur, was die Wortmarke braucht: Namen, Maße, Zeichen und Umrisse."""
+
+    def __init__(self, pfad: Path) -> None:
+        self.d = pfad.read_bytes()
+        if self.d[:4] not in (b"\x00\x01\x00\x00", b"true"):
+            raise SystemExit(f"{pfad}: keine TrueType-Schrift")
+        self.tabellen = {}
+        for i in range(self.u16(4)):
+            tag, _, versatz, laenge = struct.unpack(">4sIII", self.d[12 + 16 * i:28 + 16 * i])
+            self.tabellen[tag.decode("latin-1")] = versatz
+        fehlen = {"head", "hhea", "hmtx", "cmap", "loca", "glyf", "name", "maxp"} - set(self.tabellen)
+        if fehlen:
+            raise SystemExit(f"{pfad}: Tabellen {sorted(fehlen)} fehlen, die Umrisse müssen in glyf stehen")
+        kopf = self.tabellen["head"]
+        self.einheiten = self.u16(kopf + 18)
+        self.loca_lang = self.s16(kopf + 50) == 1
+        hhea = self.tabellen["hhea"]
+        self.oben, self.unten, self.metriken = self.s16(hhea + 4), self.s16(hhea + 6), self.u16(hhea + 34)
+
+    def u16(self, o: int) -> int:
+        return struct.unpack(">H", self.d[o:o + 2])[0]
+
+    def s16(self, o: int) -> int:
+        return struct.unpack(">h", self.d[o:o + 2])[0]
+
+    def name(self, nummer: int) -> str:
+        o = self.tabellen["name"]
+        anzahl, ablage = self.u16(o + 2), o + self.u16(o + 4)
+        for i in range(anzahl):
+            plattform, kodierung, sprache, nr, laenge, versatz = struct.unpack(">6H", self.d[o + 6 + 12 * i:o + 18 + 12 * i])
+            if (plattform, kodierung, sprache, nr) == (3, 1, 0x409, nummer):
+                return self.d[ablage + versatz:ablage + versatz + laenge].decode("utf-16-be")
+        return ""
+
+    def glyphe(self, zeichen: str) -> int:
+        """Glyphennummer über cmap Format 4 (Unicode, BMP)."""
+        o = self.tabellen["cmap"]
+        for i in range(self.u16(o + 2)):
+            plattform, kodierung, versatz = struct.unpack(">HHI", self.d[o + 4 + 8 * i:o + 12 + 8 * i])
+            t = o + versatz
+            if (plattform, kodierung) != (3, 1) or self.u16(t) != 4:
+                continue
+            segmente = self.u16(t + 6) // 2
+            enden, anfaenge = t + 14, t + 16 + 2 * segmente
+            deltas, verschiebungen = anfaenge + 2 * segmente, anfaenge + 4 * segmente
+            c = ord(zeichen)
+            for s in range(segmente):
+                if self.u16(anfaenge + 2 * s) <= c <= self.u16(enden + 2 * s):
+                    verschiebung = self.u16(verschiebungen + 2 * s)
+                    if verschiebung == 0:
+                        return (c + self.s16(deltas + 2 * s)) & 0xFFFF
+                    g = self.u16(verschiebungen + 2 * s + verschiebung + 2 * (c - self.u16(anfaenge + 2 * s)))
+                    return (g + self.s16(deltas + 2 * s)) & 0xFFFF if g else 0
+        raise SystemExit(f"Zeichen {zeichen!r} fehlt in der Schrift")
+
+    def vorschub(self, g: int) -> int:
+        return self.u16(self.tabellen["hmtx"] + 4 * min(g, self.metriken - 1))
+
+    def konturen(self, g: int) -> list[list[tuple[int, int, bool]]]:
+        """Umrisse einer einfachen Glyphe als Konturen aus (x, y, auf der Kurve)."""
+        loca = self.tabellen["loca"]
+        if self.loca_lang:
+            anfang, ende = struct.unpack(">II", self.d[loca + 4 * g:loca + 4 * g + 8])
+        else:
+            anfang, ende = (2 * x for x in struct.unpack(">HH", self.d[loca + 2 * g:loca + 2 * g + 4]))
+        if anfang == ende:
+            return []
+        o = self.tabellen["glyf"] + anfang
+        anzahl = self.s16(o)
+        if anzahl < 0:
+            raise SystemExit(f"Glyphe {g} ist zusammengesetzt; das braucht die Wortmarke nicht")
+        enden = [self.u16(o + 10 + 2 * i) for i in range(anzahl)]
+        p = o + 10 + 2 * anzahl
+        p += 2 + self.u16(p)
+        punkte = enden[-1] + 1
+        flags: list[int] = []
+        while len(flags) < punkte:
+            f = self.d[p]
+            p += 1
+            flags.append(f)
+            if f & 8:
+                flags += [f] * self.d[p]
+                p += 1
+
+        def achse(kurz: int, gleich: int) -> list[int]:
+            nonlocal p
+            werte, wert = [], 0
+            for f in flags:
+                if f & kurz:
+                    wert += self.d[p] if f & gleich else -self.d[p]
+                    p += 1
+                elif not f & gleich:
+                    wert += self.s16(p)
+                    p += 2
+                werte.append(wert)
+            return werte
+
+        xs, ys = achse(2, 16), achse(4, 32)
+        konturen, anfang = [], 0
+        for ende in enden:
+            konturen.append([(xs[i], ys[i], bool(flags[i] & 1)) for i in range(anfang, ende + 1)])
+            anfang = ende + 1
+        return konturen
+
+
+def pfad_text(konturen, x0: float, y0: float, s: float) -> str:
+    """TrueType-Konturen (quadratisch) als SVG-Pfad; y zeigt in SVG nach unten."""
+    def z(v: float) -> str:
+        return f"{round(v, 2):g}"
+
+    def pkt(x: float, y: float) -> str:
+        return f"{z(x0 + x * s)} {z(y0 - y * s)}"
+
+    teile = []
+    for kontur in konturen:
+        if not kontur:
+            continue
+        start = next((i for i, (_, _, auf) in enumerate(kontur) if auf), None)
+        if start is None:
+            (ax, ay, _), (bx, by, _) = kontur[0], kontur[1]
+            kontur = [((ax + bx) / 2, (ay + by) / 2, True)] + kontur
+            start = 0
+        kontur = kontur[start:] + kontur[:start]
+        teile.append("M" + pkt(*kontur[0][:2]))
+        offen = None
+        for x, y, auf in kontur[1:] + [kontur[0]]:
+            if auf:
+                teile.append(("Q" + pkt(*offen) + " " if offen else "L") + pkt(x, y))
+                offen = None
+            elif offen:
+                mx, my = (offen[0] + x) / 2, (offen[1] + y) / 2
+                teile.append("Q" + pkt(*offen) + " " + pkt(mx, my))
+                offen = (x, y)
+            else:
+                offen = (x, y)
+        teile.append("Z")
+    return "".join(teile)
+
+
+def wortmarke(argv: list[str]) -> int:
+    if len(argv) != 1:
+        print("Aufruf: python3 werkzeuge/marke.py wortmarke SCHRIFT.ttf (Liberation Sans Bold)", file=sys.stderr)
+        return 2
+    pfad = Path(argv[0])
+    schrift = Schrift(pfad)
+    familie, schnitt, version, lizenz = schrift.name(1), schrift.name(2), schrift.name(5), schrift.name(13)
+    if (familie, schnitt) != WORTMARKE_SCHRIFT or "Open Font License" not in lizenz:
+        kurz = (lizenz.splitlines() or ["ohne Lizenzangabe"])[0][:80]
+        print(f"{pfad}: {familie} {schnitt} ({kurz}); "
+              f"erwartet {' '.join(WORTMARKE_SCHRIFT)} unter der SIL Open Font License", file=sys.stderr)
+        return 2
+    quellen = {}
+    for ziel, quelle in PFAD_LOGOS.items():
+        text = (WURZEL / quelle).read_text(encoding="utf-8")
+        treffer = list(re.finditer(r"<text\b([^>]*)>([^<]*)</text>", text))
+        if len(treffer) != 1:
+            raise SystemExit(f"{quelle}: erwartet genau ein <text>")
+        attrs = dict(re.findall(r'([a-z-]+)="([^"]*)"', treffer[0].group(1)))
+        if attrs.get("font-weight") != "700" or attrs.get("dominant-baseline") != "central":
+            raise SystemExit(f"{quelle}: erwartet font-weight 700 und dominant-baseline central")
+        groesse = float(attrs["font-size"])
+        s = groesse / schrift.einheiten
+        # dominant-baseline central: Mitte zwischen Ober- und Unterlänge aus hhea, wie Browser es rechnen
+        grundlinie = float(attrs["y"]) + (schrift.oben + schrift.unten) / 2 * s
+        x, teile = float(attrs["x"]), []
+        for zeichen in treffer[0].group(2):
+            g = schrift.glyphe(zeichen)
+            teile.append(pfad_text(schrift.konturen(g), x, grundlinie, s))
+            x += schrift.vorschub(g) * s + float(attrs.get("letter-spacing", "0"))
+        element = f'<path d="{"".join(teile)}" fill="{attrs["fill"]}"/>'
+        neu = text[:treffer[0].start()] + element + text[treffer[0].end():]
+        (WURZEL / ziel).parent.mkdir(parents=True, exist_ok=True)
+        (WURZEL / ziel).write_text(neu, encoding="utf-8", newline="\n")
+        print(f"geschrieben: {ziel}")
+        quellen[quelle] = sha256(WURZEL / quelle)
+    liste = {"schrift": f"{familie} {schnitt}, {version}", "lizenz": lizenz,
+             "schrift_sha256": sha256(pfad), "quellen": quellen}
+    (WURZEL / PFADE_QUELLE).write_text(json.dumps(liste, ensure_ascii=False, indent=2) + "\n",
+                                      encoding="utf-8", newline="\n")
+    print(f"geschrieben: {PFADE_QUELLE}; jetzt python3 werkzeuge/marke.py erzeugen für die einfarbigen")
+    return 0
+
+
+def pfade_pruefen() -> list[str]:
+    """Die Logos mit Pfaden passen zum Stand der Logos mit Text und enthalten keinen Text mehr."""
+    hinweis = "bitte python3 werkzeuge/marke.py wortmarke mit Liberation Sans Bold"
+    if not (WURZEL / PFADE_QUELLE).is_file():
+        return [f"fehlt: {PFADE_QUELLE}, {hinweis}"]
+    quellen = json.loads((WURZEL / PFADE_QUELLE).read_text(encoding="utf-8"))["quellen"]
+    fehler = []
+    for ziel, quelle in PFAD_LOGOS.items():
+        if not (WURZEL / ziel).is_file():
+            fehler.append(f"fehlt: {ziel}, {hinweis}")
+        elif "<text" in (WURZEL / ziel).read_text(encoding="utf-8"):
+            fehler.append(f"{ziel}: enthält noch <text>")
+        if quellen.get(quelle) != sha256(WURZEL / quelle):
+            fehler.append(f"veraltet: {ziel}, {quelle} hat sich geändert, {hinweis}")
+    return fehler
+
+
 # --- Befehle --------------------------------------------------------------------
 
 # Die eigenen Exporte, die pruefen mit abgleichen gegen die Tokens hält: Pfad -> streng
@@ -1495,7 +1712,7 @@ def pruefen() -> int:
     abgleich_fehler, abgleiche = abgleich_pruefen(daten)
     fehler += abgleich_fehler
     raster_fehler, rasterbilder = raster_pruefen()
-    fehler += raster_fehler
+    fehler += raster_fehler + pfade_pruefen()
     if fehler:
         print("Prüfung fehlgeschlagen:")
         print("\n".join(f"  - {f}" for f in fehler))
@@ -1508,6 +1725,8 @@ def pruefen() -> int:
 def main(argv: list[str]) -> int:
     if len(argv) >= 2 and argv[1] == "abgleichen":
         return abgleichen(argv[2:])
+    if len(argv) >= 2 and argv[1] == "wortmarke":
+        return wortmarke(argv[2:])
     befehle = {"erzeugen": erzeugen, "pruefen": pruefen, "raster": raster}
     if len(argv) != 2 or argv[1] not in befehle:
         print(__doc__.strip(), file=sys.stderr)

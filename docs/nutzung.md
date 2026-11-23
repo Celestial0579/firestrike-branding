@@ -59,7 +59,7 @@ So setzen Projekte die Marke ein. Die Werte stehen in [`tokens/firestrike.json`]
 - „light“ und „dark“ im Dateinamen meinen das Thema, für das die Datei gedacht ist. Eine Anwendung kann den Namen so aus dem Thema bilden, etwa `firestrike-logo-%(theme)s.svg`.
 - Nicht verzerren, nicht drehen, nicht umfärben. Keine Schatten, Konturen oder Verläufe.
 - Startwerte, Änderungen per Issue: Freiraum rundum mindestens ein Viertel der Logohöhe. Kleinste Größe 120 px Breite für das Logo, 16 px für das Symbol.
-- Die Wortmarke ist als Text in Arial oder Helvetica gesetzt und sieht darum je nach System etwas anders aus. Fassungen mit Pfaden statt Text folgen.
+- Die Wortmarke ist als Text in Arial oder Helvetica gesetzt und sieht darum je nach System etwas anders aus. Fassungen mit Pfaden statt Text liegen als Entwurf unter `logos/pfade/`, siehe [logos/README.md](../logos/README.md#wortmarke-als-pfade).
 
 ## Kacheln
 
