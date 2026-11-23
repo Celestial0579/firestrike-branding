@@ -292,6 +292,43 @@
     "exit_streng": 2,
     "befunde": null
   },
+  "winui-oberste-ebene.xaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut dunkel",
+      "abweichung glut dunkel",
+      "abweichung kontrast-glut",
+      "abweichung kontrast-glut"
+    ]
+  },
+  "winui-passt.xaml": {
+    "exit": 0,
+    "exit_streng": 0,
+    "befunde": []
+  },
+  "winui-weicht-ab.xaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung akzent-SystemAccentColor",
+      "abweichung akzent-SystemAccentColorDark1",
+      "abweichung akzent-SystemAccentColorDark2",
+      "abweichung akzent-SystemAccentColorDark3",
+      "abweichung akzent-SystemAccentColorLight1",
+      "abweichung akzent-SystemAccentColorLight2",
+      "abweichung akzent-SystemAccentColorLight3",
+      "abweichung fokus dunkel",
+      "abweichung kontrast-text",
+      "abweichung kontrast-text-leise",
+      "abweichung radius",
+      "alte-glut #AB5019",
+      "alte-glut #AB5019",
+      "alte-glut #D9713C",
+      "fehlt kontrast-fokus",
+      "unbekannt FsOrangeColor"
+    ]
+  },
   "wordpress-fluid-aus.json": {
     "exit": 1,
     "exit_streng": 1,

@@ -1,6 +1,6 @@
 {
   "leitbild": "Feuerstein auf Stahl",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "beschreibung": "Quelle der Wahrheit für Farben, Schrift und Form aller Firestrike-Oberflächen. Nur hier ändern, danach python3 werkzeuge/marke.py erzeugen. Ein Wert wie \"=glut\" übernimmt den Wert einer anderen Rolle im selben Thema.",
   "farben": [
     { "rolle": "grund", "name": "Grund", "hell": "#EFF0ED", "dunkel": "#141715", "zweck": "Seitengrund, die unterste Ebene" },
@@ -66,5 +66,30 @@
     { "stufe": "60", "wert": "4rem" },
     { "stufe": "70", "wert": "6rem" }
   ],
-  "satz": { "zeilenhoehe-text": "1.65", "zeilenhoehe-ueberschrift": "1.2", "staerke-ueberschrift": "600" }
+  "satz": { "zeilenhoehe-text": "1.65", "zeilenhoehe-ueberschrift": "1.2", "staerke-ueberschrift": "600" },
+  "winui": {
+    "beschreibung": "WinUI 3. Die Akzentreihe entsteht aus Glut und Funke; helligkeit verschiebt die HSL-Helligkeit. WinUI nimmt im hellen Thema Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und Light3 und Light2 für Verweise (microsoft-ui-xaml, Common_themeresources_any.xaml). Im Modus Hoher Kontrast zeigt jede Rolle auf eine Systemfarbe.",
+    "akzentreihe": [
+      { "stufe": "SystemAccentColor", "rolle": "glut", "thema": "hell", "helligkeit": 0 },
+      { "stufe": "SystemAccentColorLight1", "rolle": "glut", "thema": "dunkel", "helligkeit": -0.08 },
+      { "stufe": "SystemAccentColorLight2", "rolle": "glut", "thema": "dunkel", "helligkeit": 0 },
+      { "stufe": "SystemAccentColorLight3", "rolle": "funke", "thema": "dunkel", "helligkeit": 0 },
+      { "stufe": "SystemAccentColorDark1", "rolle": "glut", "thema": "hell", "helligkeit": 0 },
+      { "stufe": "SystemAccentColorDark2", "rolle": "glut", "thema": "hell", "helligkeit": 0 },
+      { "stufe": "SystemAccentColorDark3", "rolle": "glut", "thema": "hell", "helligkeit": -0.08 }
+    ],
+    "hoher-kontrast": {
+      "grund": "SystemColorWindowColor",
+      "flaeche": "SystemColorWindowColor",
+      "flaeche-tief": "SystemColorWindowColor",
+      "linie": "SystemColorWindowTextColor",
+      "text": "SystemColorWindowTextColor",
+      "text-leise": "SystemColorWindowTextColor",
+      "stahl": "SystemColorWindowTextColor",
+      "stahl-tief": "SystemColorWindowTextColor",
+      "funke": "SystemColorHighlightColor",
+      "glut": "SystemColorHotlightColor",
+      "fokus": "SystemColorHighlightColor"
+    }
+  }
 }
