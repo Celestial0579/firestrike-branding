@@ -24,3 +24,30 @@ jobs:
           persist-credentials: false
       - name: Tokens, Kontraste, erzeugte Dateien und SVGs prüfen
         run: python3 werkzeuge/marke.py pruefen
+
+  raster:
+    name: Rasterbilder neu erzeugen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: rsvg-convert installieren
+        run: |
+          for versuch in 1 2 3; do
+            if sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends librsvg2-bin; then
+              exit 0
+            fi
+            echo "Versuch $versuch gescheitert, nächster in 20 s"
+            sleep 20
+          done
+          exit 1
+      # Die Bilder entstehen mit einem festen Werkzeug, nicht von Hand. Hier
+      # zeigt sich, dass der Befehl läuft und Bilder in den richtigen Maßen
+      # liefert. Die Bytes vergleicht niemand: Sie hängen an der Version von
+      # librsvg, die Prüfung hält sich an die Prüfsummen der Quellen.
+      - name: Rasterbilder erzeugen und prüfen
+        run: |
+          python3 werkzeuge/marke.py raster
+          python3 werkzeuge/marke.py pruefen

@@ -1,0 +1,161 @@
+{
+  "werkzeug": "rsvg-convert version 2.61.3",
+  "bilder": {
+    "favicon.ico": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "16x16",
+        "32x32",
+        "48x48"
+      ]
+    },
+    "favicon-32.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "32x32"
+      ]
+    },
+    "site-icon-512.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "512x512"
+      ]
+    },
+    "apple-touch-icon-180.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "180x180"
+      ]
+    },
+    "profilbild-400.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "400x400"
+      ]
+    },
+    "app.ico": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "16x16",
+        "20x20",
+        "24x24",
+        "32x32",
+        "40x40",
+        "48x48",
+        "64x64",
+        "256x256"
+      ]
+    },
+    "msix/Square44x44Logo.scale-100.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "44x44"
+      ]
+    },
+    "msix/Square44x44Logo.scale-200.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "88x88"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-16.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "16x16"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-24.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "24x24"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-32.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "32x32"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-48.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "48x48"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-256.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "256x256"
+      ]
+    },
+    "msix/Square150x150Logo.scale-100.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "150x150"
+      ]
+    },
+    "msix/Square150x150Logo.scale-200.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "300x300"
+      ]
+    },
+    "msix/StoreLogo.scale-100.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "50x50"
+      ]
+    },
+    "msix/StoreLogo.scale-200.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "100x100"
+      ]
+    },
+    "msix/Wide310x150Logo.scale-100.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "310x150"
+      ]
+    },
+    "msix/Wide310x150Logo.scale-200.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "620x300"
+      ]
+    },
+    "msix/SplashScreen.scale-100.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "620x300"
+      ]
+    },
+    "msix/SplashScreen.scale-200.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "1240x600"
+      ]
+    }
+  }
+}

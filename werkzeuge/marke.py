@@ -9,6 +9,12 @@
         vergleicht die Kopie eines Projekts mit den Tokens. FORMAT ist css,
         scss, avalonia oder wordpress, ohne --format gilt die Endung der Datei.
         Exit-Code 0: passt, 1: Abweichung, 2: Aufruf oder Datei unbrauchbar.
+    python3 werkzeuge/marke.py raster
+        erzeugt die Rasterbilder unter exporte/raster neu; braucht rsvg-convert
+        (Paket librsvg2-bin), sonst nur die Standardbibliothek
+    python3 werkzeuge/marke.py wortmarke SCHRIFT.ttf
+        setzt die Wortmarke der Logos als Pfade nach logos/pfade; SCHRIFT ist
+        Liberation Sans Bold (SIL Open Font License 1.1)
 
 Nur Standardbibliothek und kein Netzzugriff, damit alles ohne Installation läuft
 (Python 3.10 oder neuer).
@@ -18,9 +24,13 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import hashlib
 import json
 import math
+import os
 import re
+import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -44,6 +54,8 @@ ZAHL = re.compile(r"\d+(?:\.\d+)?")
 EINFARBIG = {
     "logos/firestrike-logo-mono-light.svg": ("logos/firestrike-logo-light.svg", "text", "hell"),
     "logos/firestrike-logo-mono-dark.svg": ("logos/firestrike-logo-dark.svg", "text", "dunkel"),
+    "logos/pfade/firestrike-logo-mono-light.svg": ("logos/pfade/firestrike-logo-light.svg", "text", "hell"),
+    "logos/pfade/firestrike-logo-mono-dark.svg": ("logos/pfade/firestrike-logo-dark.svg", "text", "dunkel"),
 }
 
 # Was in keinem SVG der Marke stehen darf, weil es Code ausführt oder etwas nachlädt.
@@ -1220,6 +1232,366 @@ def abgleichen(argv: list[str]) -> int:
     return 0
 
 
+# --- Rasterbilder ----------------------------------------------------------------
+
+RASTER = "exporte/raster"
+RASTER_LISTE = "exporte/raster/quellen.json"
+SYMBOL = "logos/firestrike-symbol.svg"
+# Wie groß das Symbol auf breiten Flächen (MSIX Wide und SplashScreen) ist, als Anteil der Höhe.
+SYMBOL_ANTEIL = 0.5
+
+# Datei unter exporte/raster -> (Quell-SVG, Größen als (Breite, Höhe)). ICO-Dateien tragen mehrere Größen.
+RASTERBILDER: dict[str, tuple[str, tuple[tuple[int, int], ...]]] = {
+    "favicon.ico": (SYMBOL, ((16, 16), (32, 32), (48, 48))),
+    "favicon-32.png": (SYMBOL, ((32, 32),)),
+    "site-icon-512.png": (SYMBOL, ((512, 512),)),
+    "apple-touch-icon-180.png": (SYMBOL, ((180, 180),)),
+    "profilbild-400.png": (SYMBOL, ((400, 400),)),
+    "app.ico": (SYMBOL, tuple((g, g) for g in (16, 20, 24, 32, 40, 48, 64, 256))),
+    **{f"msix/Square44x44Logo.scale-{s}.png": (SYMBOL, ((44 * s // 100, 44 * s // 100),)) for s in (100, 200)},
+    **{f"msix/Square44x44Logo.targetsize-{g}.png": (SYMBOL, ((g, g),)) for g in (16, 24, 32, 48, 256)},
+    **{f"msix/Square150x150Logo.scale-{s}.png": (SYMBOL, ((150 * s // 100, 150 * s // 100),)) for s in (100, 200)},
+    **{f"msix/StoreLogo.scale-{s}.png": (SYMBOL, ((50 * s // 100, 50 * s // 100),)) for s in (100, 200)},
+    **{f"msix/Wide310x150Logo.scale-{s}.png": (SYMBOL, ((310 * s // 100, 150 * s // 100),)) for s in (100, 200)},
+    **{f"msix/SplashScreen.scale-{s}.png": (SYMBOL, ((620 * s // 100, 300 * s // 100),)) for s in (100, 200)},
+}
+
+
+def sha256(pfad: Path) -> str:
+    return hashlib.sha256(pfad.read_bytes()).hexdigest()
+
+
+def png_masse(daten: bytes) -> tuple[int, int] | None:
+    """Breite und Höhe aus dem IHDR-Block, ohne die Bilddaten zu lesen."""
+    if len(daten) < 24 or daten[:8] != b"\x89PNG\r\n\x1a\n" or daten[12:16] != b"IHDR":
+        return None
+    return struct.unpack(">II", daten[16:24])
+
+
+def ico_bauen(bilder: list[bytes]) -> bytes:
+    """ICO mit PNG-Einträgen (Windows ab Vista, alle Browser)."""
+    kopf = struct.pack("<HHH", 0, 1, len(bilder))
+    eintraege, rumpf = b"", b""
+    versatz = 6 + 16 * len(bilder)
+    for png in bilder:
+        breite, hoehe = png_masse(png)
+        eintraege += struct.pack("<BBBBHHII", breite % 256, hoehe % 256, 0, 0, 1, 32, len(png), versatz + len(rumpf))
+        rumpf += png
+    return kopf + eintraege + rumpf
+
+
+def ico_masse(daten: bytes) -> list[tuple[int, int]] | None:
+    """Größen der Einträge einer ICO-Datei; jeder Eintrag muss ein PNG passender Größe sein."""
+    if len(daten) < 6:
+        return None
+    reserviert, art, anzahl = struct.unpack("<HHH", daten[:6])
+    if reserviert != 0 or art != 1 or len(daten) < 6 + 16 * anzahl:
+        return None
+    masse = []
+    for i in range(anzahl):
+        b, h, _, _, _, _, laenge, versatz = struct.unpack("<BBBBHHII", daten[6 + 16 * i:22 + 16 * i])
+        png = png_masse(daten[versatz:versatz + laenge])
+        if png is None or png != (b or 256, h or 256):
+            return None
+        masse.append(png)
+    return masse
+
+
+def svg_innen(text: str) -> tuple[str, str]:
+    """viewBox und Inhalt des Wurzelelements."""
+    wurzel = re.search(r"<svg\b[^>]*>", text)
+    box = re.search(r'viewBox="([^"]+)"', wurzel.group(0))
+    return box.group(1), text[wurzel.end():text.rindex("</svg>")]
+
+
+def rendern(werkzeug: str, quelle: Path, breite: int, hoehe: int, arbeit: Path) -> bytes:
+    """Rendert das SVG mit rsvg-convert; auf breiten Flächen mittig mit Rand, ohne Verzerrung."""
+    if breite == hoehe:
+        datei = quelle
+    else:
+        box, innen = svg_innen(quelle.read_text(encoding="utf-8"))
+        seite = round(hoehe * SYMBOL_ANTEIL)
+        datei = arbeit / f"breit-{breite}x{hoehe}.svg"
+        datei.write_text(
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{breite}" height="{hoehe}" '
+            f'viewBox="0 0 {breite} {hoehe}"><svg x="{(breite - seite) // 2}" y="{(hoehe - seite) // 2}" '
+            f'width="{seite}" height="{seite}" viewBox="{box}">{innen}</svg></svg>', encoding="utf-8")
+    ergebnis = subprocess.run([werkzeug, "--format", "png", "--width", str(breite), "--height", str(hoehe), str(datei)],
+                              check=True, capture_output=True, timeout=60)
+    if png_masse(ergebnis.stdout) != (breite, hoehe):
+        raise SystemExit(f"{quelle}: rsvg-convert lieferte kein PNG mit {breite} x {hoehe}")
+    return ergebnis.stdout
+
+
+def raster() -> int:
+    werkzeug = os.environ.get("RSVG_CONVERT") or shutil.which("rsvg-convert")
+    if not werkzeug:
+        print("rsvg-convert fehlt: Paket librsvg2-bin installieren oder RSVG_CONVERT setzen.", file=sys.stderr)
+        return 2
+    version = subprocess.run([werkzeug, "--version"], check=True, capture_output=True, text=True,
+                             timeout=30).stdout.splitlines()[0].strip()
+    ziel = WURZEL / RASTER
+    liste = {"werkzeug": version, "bilder": {}}
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, (quelle, groessen) in RASTERBILDER.items():
+            bilder = [rendern(werkzeug, WURZEL / quelle, b, h, Path(tmp)) for b, h in groessen]
+            inhalt = ico_bauen(bilder) if name.endswith(".ico") else bilder[0]
+            datei = ziel / name
+            datei.parent.mkdir(parents=True, exist_ok=True)
+            if not datei.is_file() or datei.read_bytes() != inhalt:
+                datei.write_bytes(inhalt)
+                print(f"geschrieben: {RASTER}/{name}")
+            liste["bilder"][name] = {"quelle": quelle, "quelle_sha256": sha256(WURZEL / quelle),
+                                     "groessen": [f"{b}x{h}" for b, h in groessen]}
+    text = json.dumps(liste, ensure_ascii=False, indent=2) + "\n"
+    if not (WURZEL / RASTER_LISTE).is_file() or (WURZEL / RASTER_LISTE).read_text(encoding="utf-8") != text:
+        (WURZEL / RASTER_LISTE).write_text(text, encoding="utf-8", newline="\n")
+        print(f"geschrieben: {RASTER_LISTE}")
+    return 0
+
+
+def raster_pruefen() -> tuple[list[str], int]:
+    """Jedes Rasterbild passt zum Stand seiner Quelle (Prüfsumme in der Liste) und hat die richtigen Maße."""
+    hinweis = "bitte python3 werkzeuge/marke.py raster"
+    pfad = WURZEL / RASTER_LISTE
+    if not pfad.is_file():
+        return [f"fehlt: {RASTER_LISTE}, {hinweis}"], 0
+    liste = json.loads(pfad.read_text(encoding="utf-8"))["bilder"]
+    fehler = []
+    vorhanden = {p.relative_to(WURZEL / RASTER).as_posix() for p in (WURZEL / RASTER).rglob("*") if p.is_file()}
+    for name in sorted(vorhanden - set(RASTERBILDER) - {"quellen.json"}):
+        fehler.append(f"{RASTER}/{name}: steht nicht in RASTERBILDER, also nicht erzeugt")
+    for name, (quelle, groessen) in RASTERBILDER.items():
+        eintrag, datei = liste.get(name), WURZEL / RASTER / name
+        if eintrag is None or not datei.is_file():
+            fehler.append(f"fehlt: {RASTER}/{name}, {hinweis}")
+            continue
+        if eintrag["quelle"] != quelle or eintrag["quelle_sha256"] != sha256(WURZEL / quelle):
+            fehler.append(f"veraltet: {RASTER}/{name}, {quelle} hat sich geändert, {hinweis}")
+        soll = [(b, h) for b, h in groessen]
+        if eintrag["groessen"] != [f"{b}x{h}" for b, h in soll]:
+            fehler.append(f"veraltet: {RASTER}/{name}, Größen in der Liste stimmen nicht, {hinweis}")
+        inhalt = datei.read_bytes()
+        ist = ico_masse(inhalt) if name.endswith(".ico") else ([m] if (m := png_masse(inhalt)) else None)
+        if ist != soll:
+            fehler.append(f"{RASTER}/{name}: Maße {ist}, erwartet {soll}")
+    for name in sorted(set(liste) - set(RASTERBILDER)):
+        fehler.append(f"{RASTER_LISTE}: {name} gibt es nicht mehr, {hinweis}")
+    return fehler, len(RASTERBILDER)
+
+
+# --- Wortmarke als Pfade ---------------------------------------------------------
+
+WORTMARKE_SCHRIFT = ("Liberation Sans", "Bold")
+PFADE_QUELLE = "logos/pfade/quelle.json"
+# Logo mit Pfaden -> Logo mit Text, aus dem es entsteht
+PFAD_LOGOS = {
+    "logos/pfade/firestrike-logo-light.svg": "logos/firestrike-logo-light.svg",
+    "logos/pfade/firestrike-logo-dark.svg": "logos/firestrike-logo-dark.svg",
+}
+
+
+class Schrift:
+    """Liest aus einer TrueType-Datei nur, was die Wortmarke braucht: Namen, Maße, Zeichen und Umrisse."""
+
+    def __init__(self, pfad: Path) -> None:
+        self.d = pfad.read_bytes()
+        if self.d[:4] not in (b"\x00\x01\x00\x00", b"true"):
+            raise SystemExit(f"{pfad}: keine TrueType-Schrift")
+        self.tabellen = {}
+        for i in range(self.u16(4)):
+            tag, _, versatz, laenge = struct.unpack(">4sIII", self.d[12 + 16 * i:28 + 16 * i])
+            self.tabellen[tag.decode("latin-1")] = versatz
+        fehlen = {"head", "hhea", "hmtx", "cmap", "loca", "glyf", "name", "maxp"} - set(self.tabellen)
+        if fehlen:
+            raise SystemExit(f"{pfad}: Tabellen {sorted(fehlen)} fehlen, die Umrisse müssen in glyf stehen")
+        kopf = self.tabellen["head"]
+        self.einheiten = self.u16(kopf + 18)
+        self.loca_lang = self.s16(kopf + 50) == 1
+        hhea = self.tabellen["hhea"]
+        self.oben, self.unten, self.metriken = self.s16(hhea + 4), self.s16(hhea + 6), self.u16(hhea + 34)
+
+    def u16(self, o: int) -> int:
+        return struct.unpack(">H", self.d[o:o + 2])[0]
+
+    def s16(self, o: int) -> int:
+        return struct.unpack(">h", self.d[o:o + 2])[0]
+
+    def name(self, nummer: int) -> str:
+        o = self.tabellen["name"]
+        anzahl, ablage = self.u16(o + 2), o + self.u16(o + 4)
+        for i in range(anzahl):
+            plattform, kodierung, sprache, nr, laenge, versatz = struct.unpack(">6H", self.d[o + 6 + 12 * i:o + 18 + 12 * i])
+            if (plattform, kodierung, sprache, nr) == (3, 1, 0x409, nummer):
+                return self.d[ablage + versatz:ablage + versatz + laenge].decode("utf-16-be")
+        return ""
+
+    def glyphe(self, zeichen: str) -> int:
+        """Glyphennummer über cmap Format 4 (Unicode, BMP)."""
+        o = self.tabellen["cmap"]
+        for i in range(self.u16(o + 2)):
+            plattform, kodierung, versatz = struct.unpack(">HHI", self.d[o + 4 + 8 * i:o + 12 + 8 * i])
+            t = o + versatz
+            if (plattform, kodierung) != (3, 1) or self.u16(t) != 4:
+                continue
+            segmente = self.u16(t + 6) // 2
+            enden, anfaenge = t + 14, t + 16 + 2 * segmente
+            deltas, verschiebungen = anfaenge + 2 * segmente, anfaenge + 4 * segmente
+            c = ord(zeichen)
+            for s in range(segmente):
+                if self.u16(anfaenge + 2 * s) <= c <= self.u16(enden + 2 * s):
+                    verschiebung = self.u16(verschiebungen + 2 * s)
+                    if verschiebung == 0:
+                        return (c + self.s16(deltas + 2 * s)) & 0xFFFF
+                    g = self.u16(verschiebungen + 2 * s + verschiebung + 2 * (c - self.u16(anfaenge + 2 * s)))
+                    return (g + self.s16(deltas + 2 * s)) & 0xFFFF if g else 0
+        raise SystemExit(f"Zeichen {zeichen!r} fehlt in der Schrift")
+
+    def vorschub(self, g: int) -> int:
+        return self.u16(self.tabellen["hmtx"] + 4 * min(g, self.metriken - 1))
+
+    def konturen(self, g: int) -> list[list[tuple[int, int, bool]]]:
+        """Umrisse einer einfachen Glyphe als Konturen aus (x, y, auf der Kurve)."""
+        loca = self.tabellen["loca"]
+        if self.loca_lang:
+            anfang, ende = struct.unpack(">II", self.d[loca + 4 * g:loca + 4 * g + 8])
+        else:
+            anfang, ende = (2 * x for x in struct.unpack(">HH", self.d[loca + 2 * g:loca + 2 * g + 4]))
+        if anfang == ende:
+            return []
+        o = self.tabellen["glyf"] + anfang
+        anzahl = self.s16(o)
+        if anzahl < 0:
+            raise SystemExit(f"Glyphe {g} ist zusammengesetzt; das braucht die Wortmarke nicht")
+        enden = [self.u16(o + 10 + 2 * i) for i in range(anzahl)]
+        p = o + 10 + 2 * anzahl
+        p += 2 + self.u16(p)
+        punkte = enden[-1] + 1
+        flags: list[int] = []
+        while len(flags) < punkte:
+            f = self.d[p]
+            p += 1
+            flags.append(f)
+            if f & 8:
+                flags += [f] * self.d[p]
+                p += 1
+
+        def achse(kurz: int, gleich: int) -> list[int]:
+            nonlocal p
+            werte, wert = [], 0
+            for f in flags:
+                if f & kurz:
+                    wert += self.d[p] if f & gleich else -self.d[p]
+                    p += 1
+                elif not f & gleich:
+                    wert += self.s16(p)
+                    p += 2
+                werte.append(wert)
+            return werte
+
+        xs, ys = achse(2, 16), achse(4, 32)
+        konturen, anfang = [], 0
+        for ende in enden:
+            konturen.append([(xs[i], ys[i], bool(flags[i] & 1)) for i in range(anfang, ende + 1)])
+            anfang = ende + 1
+        return konturen
+
+
+def pfad_text(konturen, x0: float, y0: float, s: float) -> str:
+    """TrueType-Konturen (quadratisch) als SVG-Pfad; y zeigt in SVG nach unten."""
+    def z(v: float) -> str:
+        return f"{round(v, 2):g}"
+
+    def pkt(x: float, y: float) -> str:
+        return f"{z(x0 + x * s)} {z(y0 - y * s)}"
+
+    teile = []
+    for kontur in konturen:
+        if not kontur:
+            continue
+        start = next((i for i, (_, _, auf) in enumerate(kontur) if auf), None)
+        if start is None:
+            (ax, ay, _), (bx, by, _) = kontur[0], kontur[1]
+            kontur = [((ax + bx) / 2, (ay + by) / 2, True)] + kontur
+            start = 0
+        kontur = kontur[start:] + kontur[:start]
+        teile.append("M" + pkt(*kontur[0][:2]))
+        offen = None
+        for x, y, auf in kontur[1:] + [kontur[0]]:
+            if auf:
+                teile.append(("Q" + pkt(*offen) + " " if offen else "L") + pkt(x, y))
+                offen = None
+            elif offen:
+                mx, my = (offen[0] + x) / 2, (offen[1] + y) / 2
+                teile.append("Q" + pkt(*offen) + " " + pkt(mx, my))
+                offen = (x, y)
+            else:
+                offen = (x, y)
+        teile.append("Z")
+    return "".join(teile)
+
+
+def wortmarke(argv: list[str]) -> int:
+    if len(argv) != 1:
+        print("Aufruf: python3 werkzeuge/marke.py wortmarke SCHRIFT.ttf (Liberation Sans Bold)", file=sys.stderr)
+        return 2
+    pfad = Path(argv[0])
+    schrift = Schrift(pfad)
+    familie, schnitt, version, lizenz = schrift.name(1), schrift.name(2), schrift.name(5), schrift.name(13)
+    if (familie, schnitt) != WORTMARKE_SCHRIFT or "Open Font License" not in lizenz:
+        kurz = (lizenz.splitlines() or ["ohne Lizenzangabe"])[0][:80]
+        print(f"{pfad}: {familie} {schnitt} ({kurz}); "
+              f"erwartet {' '.join(WORTMARKE_SCHRIFT)} unter der SIL Open Font License", file=sys.stderr)
+        return 2
+    quellen = {}
+    for ziel, quelle in PFAD_LOGOS.items():
+        text = (WURZEL / quelle).read_text(encoding="utf-8")
+        treffer = list(re.finditer(r"<text\b([^>]*)>([^<]*)</text>", text))
+        if len(treffer) != 1:
+            raise SystemExit(f"{quelle}: erwartet genau ein <text>")
+        attrs = dict(re.findall(r'([a-z-]+)="([^"]*)"', treffer[0].group(1)))
+        if attrs.get("font-weight") != "700" or attrs.get("dominant-baseline") != "central":
+            raise SystemExit(f"{quelle}: erwartet font-weight 700 und dominant-baseline central")
+        groesse = float(attrs["font-size"])
+        s = groesse / schrift.einheiten
+        # dominant-baseline central: Mitte zwischen Ober- und Unterlänge aus hhea, wie Browser es rechnen
+        grundlinie = float(attrs["y"]) + (schrift.oben + schrift.unten) / 2 * s
+        x, teile = float(attrs["x"]), []
+        for zeichen in treffer[0].group(2):
+            g = schrift.glyphe(zeichen)
+            teile.append(pfad_text(schrift.konturen(g), x, grundlinie, s))
+            x += schrift.vorschub(g) * s + float(attrs.get("letter-spacing", "0"))
+        element = f'<path d="{"".join(teile)}" fill="{attrs["fill"]}"/>'
+        neu = text[:treffer[0].start()] + element + text[treffer[0].end():]
+        (WURZEL / ziel).parent.mkdir(parents=True, exist_ok=True)
+        (WURZEL / ziel).write_text(neu, encoding="utf-8", newline="\n")
+        print(f"geschrieben: {ziel}")
+        quellen[quelle] = sha256(WURZEL / quelle)
+    liste = {"schrift": f"{familie} {schnitt}, {version}", "lizenz": lizenz,
+             "schrift_sha256": sha256(pfad), "quellen": quellen}
+    (WURZEL / PFADE_QUELLE).write_text(json.dumps(liste, ensure_ascii=False, indent=2) + "\n",
+                                      encoding="utf-8", newline="\n")
+    print(f"geschrieben: {PFADE_QUELLE}; jetzt python3 werkzeuge/marke.py erzeugen für die einfarbigen")
+    return 0
+
+
+def pfade_pruefen() -> list[str]:
+    """Die Logos mit Pfaden passen zum Stand der Logos mit Text und enthalten keinen Text mehr."""
+    hinweis = "bitte python3 werkzeuge/marke.py wortmarke mit Liberation Sans Bold"
+    if not (WURZEL / PFADE_QUELLE).is_file():
+        return [f"fehlt: {PFADE_QUELLE}, {hinweis}"]
+    quellen = json.loads((WURZEL / PFADE_QUELLE).read_text(encoding="utf-8"))["quellen"]
+    fehler = []
+    for ziel, quelle in PFAD_LOGOS.items():
+        if not (WURZEL / ziel).is_file():
+            fehler.append(f"fehlt: {ziel}, {hinweis}")
+        elif "<text" in (WURZEL / ziel).read_text(encoding="utf-8"):
+            fehler.append(f"{ziel}: enthält noch <text>")
+        if quellen.get(quelle) != sha256(WURZEL / quelle):
+            fehler.append(f"veraltet: {ziel}, {quelle} hat sich geändert, {hinweis}")
+    return fehler
+
+
 # --- Befehle --------------------------------------------------------------------
 
 # Die eigenen Exporte, die pruefen mit abgleichen gegen die Tokens hält: Pfad -> streng
@@ -1339,19 +1711,23 @@ def pruefen() -> int:
         fehler += svg_pruefen(svg, erlaubt)
     abgleich_fehler, abgleiche = abgleich_pruefen(daten)
     fehler += abgleich_fehler
+    raster_fehler, rasterbilder = raster_pruefen()
+    fehler += raster_fehler + pfade_pruefen()
     if fehler:
         print("Prüfung fehlgeschlagen:")
         print("\n".join(f"  - {f}" for f in fehler))
         return 1
     print(f"Prüfung bestanden: {anzahl} Kontraste, {len(dateien)} erzeugte Dateien, {len(svgs)} SVGs, "
-          f"{abgleiche} Abgleiche.")
+          f"{abgleiche} Abgleiche, {rasterbilder} Rasterbilder.")
     return 0
 
 
 def main(argv: list[str]) -> int:
     if len(argv) >= 2 and argv[1] == "abgleichen":
         return abgleichen(argv[2:])
-    befehle = {"erzeugen": erzeugen, "pruefen": pruefen}
+    if len(argv) >= 2 and argv[1] == "wortmarke":
+        return wortmarke(argv[2:])
+    befehle = {"erzeugen": erzeugen, "pruefen": pruefen, "raster": raster}
     if len(argv) != 2 or argv[1] not in befehle:
         print(__doc__.strip(), file=sys.stderr)
         return 2
