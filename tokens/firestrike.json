@@ -1,6 +1,6 @@
 {
   "leitbild": "Feuerstein auf Stahl",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "beschreibung": "Quelle der Wahrheit für Farben, Schrift und Form aller Firestrike-Oberflächen. Nur hier ändern, danach python3 werkzeuge/marke.py erzeugen. Ein Wert wie \"=glut\" übernimmt den Wert einer anderen Rolle im selben Thema.",
   "farben": [
     { "rolle": "grund", "name": "Grund", "hell": "#EFF0ED", "dunkel": "#141715", "zweck": "Seitengrund, die unterste Ebene" },
@@ -45,5 +45,26 @@
       "xaml": "Cascadia Mono, Consolas"
     }
   },
-  "form": { "radius": "0", "fokus-staerke": "2px", "fokus-abstand": "2px" }
+  "form": { "radius": "0", "fokus-staerke": "2px", "fokus-abstand": "2px" },
+  "groessen": {
+    "beschreibung": "Schriftgrößen. Mit min und max ist eine Größe fließend: Zwischen den Fensterbreiten fluessig.von und fluessig.bis wächst sie gleichmäßig von min auf max, so wie WordPress es rechnet. Apps nehmen wert. Normal ist fließend, weil WordPress jede Größe über 14 px ab 14 px wachsen lässt.",
+    "fluessig": { "von": "320px", "bis": "64rem" },
+    "stufen": [
+      { "rolle": "klein", "name": "Klein", "wordpress": "small", "wert": "0.875rem" },
+      { "rolle": "normal", "name": "Normal", "wordpress": "medium", "wert": "1.0625rem", "min": "0.875rem", "max": "1.0625rem" },
+      { "rolle": "gross", "name": "Groß", "wordpress": "large", "wert": "1.5rem", "min": "1.3rem", "max": "1.6rem" },
+      { "rolle": "sehr-gross", "name": "Sehr groß", "wordpress": "x-large", "wert": "2.2rem", "min": "1.8rem", "max": "2.6rem" },
+      { "rolle": "titel", "name": "Titel", "wordpress": "xx-large", "wert": "3rem", "min": "2.2rem", "max": "3.4rem" }
+    ]
+  },
+  "abstaende": [
+    { "stufe": "10", "wert": "0.35rem" },
+    { "stufe": "20", "wert": "0.7rem" },
+    { "stufe": "30", "wert": "1.1rem" },
+    { "stufe": "40", "wert": "1.7rem" },
+    { "stufe": "50", "wert": "2.6rem" },
+    { "stufe": "60", "wert": "4rem" },
+    { "stufe": "70", "wert": "6rem" }
+  ],
+  "satz": { "zeilenhoehe-text": "1.65", "zeilenhoehe-ueberschrift": "1.2", "staerke-ueberschrift": "600" }
 }

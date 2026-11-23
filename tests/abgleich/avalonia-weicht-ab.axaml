@@ -1,0 +1,40 @@
+<!-- Alte Fassung: alte Glut, im dunklen Thema fehlt der Fokus, runde Ecken,
+     ein Schlüssel, den es nicht gibt, und ohne Größen, Abstände und Satz. -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Light">
+      <Color x:Key="Fs.Grund.Color">#eff0ed</Color>
+      <Color x:Key="Fs.Flaeche.Color">#ffffff</Color>
+      <Color x:Key="Fs.FlaecheTief.Color">#e3e5e1</Color>
+      <Color x:Key="Fs.Linie.Color">#c9ccc6</Color>
+      <Color x:Key="Fs.Text.Color">#1b1e1c</Color>
+      <Color x:Key="Fs.TextLeise.Color">#5a605b</Color>
+      <Color x:Key="Fs.Stahl.Color">#33414b</Color>
+      <Color x:Key="Fs.StahlTief.Color">#212b33</Color>
+      <Color x:Key="Fs.Funke.Color">#e8a33d</Color>
+      <Color x:Key="Fs.Glut.Color">#ab5019</Color>
+      <SolidColorBrush x:Key="Fs.Glut" Color="{StaticResource Fs.Glut.Color}" />
+      <Color x:Key="Fs.Fokus.Color">#a24c18</Color>
+      <Color x:Key="Fs.Orange.Color">#ff8800</Color>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Dark">
+      <Color x:Key="Fs.Grund.Color">#141715</Color>
+      <Color x:Key="Fs.Flaeche.Color">#1c201d</Color>
+      <Color x:Key="Fs.FlaecheTief.Color">#262b27</Color>
+      <Color x:Key="Fs.Linie.Color">#38403a</Color>
+      <Color x:Key="Fs.Text.Color">#e8ebe7</Color>
+      <Color x:Key="Fs.TextLeise.Color">#a5ada6</Color>
+      <Color x:Key="Fs.Stahl.Color">#7e93a1</Color>
+      <Color x:Key="Fs.StahlTief.Color">#b4c6d1</Color>
+      <Color x:Key="Fs.Funke.Color">#f2b558</Color>
+      <Color x:Key="Fs.Glut.Color">#d9713c</Color>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+  <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
+  <Thickness x:Key="Fs.FocusThickness">2</Thickness>
+  <Thickness x:Key="Fs.FocusOffset">2</Thickness>
+  <FontFamily x:Key="Fs.Font.Serif">Palatino Linotype, Book Antiqua, Georgia</FontFamily>
+  <FontFamily x:Key="Fs.Font.Sans">Segoe UI Variable Text, Segoe UI</FontFamily>
+  <FontFamily x:Key="Fs.Font.Mono">Cascadia Mono, Consolas</FontFamily>
+</ResourceDictionary>

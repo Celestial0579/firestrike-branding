@@ -1,0 +1,52 @@
+/* Veraltete Kopie: alte Glut, Fokus im dunklen Thema auf der Glut,
+   Text leise fehlt im dunklen Thema, falscher Radius, fremde Schrift,
+   eine Rolle, die es nicht gibt, und keine Zeilenhöhe der Überschriften. */
+:root {
+  --fs-grund: #EFF0ED;
+  --fs-flaeche: #FFFFFF;
+  --fs-flaeche-tief: #E3E5E1;
+  --fs-linie: #C9CCC6;
+  --fs-text: #1B1E1C;
+  --fs-text-leise: #5A605B;
+  --fs-stahl: #33414B;
+  --fs-stahl-tief: #212B33;
+  --fs-funke: #E8A33D;
+  --fs-glut: #AB5019;
+  --fs-fokus: var(--fs-glut);
+  --fs-orange: #FF8800;
+  --fs-radius: 4px;
+  --fs-fokus-staerke: 2px;
+  --fs-fokus-abstand: 2px;
+  --fs-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --fs-sans: Inter, sans-serif;
+  --fs-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, monospace;
+  --fs-groesse-klein: 0.875rem;
+  --fs-groesse-normal: 1.0625rem;
+  --fs-groesse-gross: clamp(1.3rem, 1.3rem + ((1vw - 0.2rem) * 0.682), 1.6rem);
+  --fs-groesse-sehr-gross: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 1.818), 2.6rem);
+  --fs-groesse-titel: clamp(2.2rem, 2.2rem + ((1vw - 0.2rem) * 2.727), 3.4rem);
+  --fs-abstand-10: 0.35rem;
+  --fs-abstand-20: 0.7rem;
+  --fs-abstand-30: 1.1rem;
+  --fs-abstand-40: 1.7rem;
+  --fs-abstand-50: 2.6rem;
+  --fs-abstand-60: 4rem;
+  --fs-abstand-70: 6rem;
+  --fs-zeilenhoehe-text: 1.65;
+  --fs-staerke-ueberschrift: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fs-grund: #141715;
+    --fs-flaeche: #1C201D;
+    --fs-flaeche-tief: #262B27;
+    --fs-linie: #38403A;
+    --fs-text: #E8EBE7;
+    --fs-stahl: #7E93A1;
+    --fs-stahl-tief: #B4C6D1;
+    --fs-funke: #F2B558;
+    --fs-glut: #D9713C;
+    --fs-fokus: var(--fs-glut);
+  }
+}

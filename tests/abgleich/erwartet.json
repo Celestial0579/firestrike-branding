@@ -1,0 +1,95 @@
+{
+  "avalonia-passt.axaml": {
+    "streng": true,
+    "exit": 0,
+    "befunde": []
+  },
+  "avalonia-weicht-ab.axaml": {
+    "streng": false,
+    "exit": 1,
+    "befunde": [
+      "abweichung glut dunkel",
+      "abweichung glut hell",
+      "abweichung glut hell",
+      "abweichung radius",
+      "alte-glut #AB5019",
+      "alte-glut #D9713C",
+      "fehlt abstand-10",
+      "fehlt abstand-20",
+      "fehlt abstand-30",
+      "fehlt abstand-40",
+      "fehlt abstand-50",
+      "fehlt abstand-60",
+      "fehlt abstand-70",
+      "fehlt fokus dunkel",
+      "fehlt groesse-gross",
+      "fehlt groesse-klein",
+      "fehlt groesse-normal",
+      "fehlt groesse-sehr-gross",
+      "fehlt groesse-titel",
+      "fehlt staerke-ueberschrift",
+      "fehlt zeilenhoehe-text",
+      "fehlt zeilenhoehe-ueberschrift",
+      "unbekannt Fs.Orange.Color"
+    ]
+  },
+  "css-passt.css": {
+    "streng": true,
+    "exit": 0,
+    "befunde": []
+  },
+  "css-weicht-ab.css": {
+    "streng": false,
+    "exit": 1,
+    "befunde": [
+      "abweichung fokus dunkel",
+      "abweichung fokus hell",
+      "abweichung glut dunkel",
+      "abweichung glut hell",
+      "abweichung groesse-normal",
+      "abweichung radius",
+      "abweichung schrift-sans",
+      "alte-glut #AB5019",
+      "alte-glut #D9713C",
+      "fehlt text-leise dunkel",
+      "fehlt zeilenhoehe-ueberschrift",
+      "unbekannt --fs-orange"
+    ]
+  },
+  "scss-passt.scss": {
+    "streng": true,
+    "exit": 0,
+    "befunde": []
+  },
+  "scss-weicht-ab.scss": {
+    "streng": false,
+    "exit": 1,
+    "befunde": [
+      "abweichung fokus hell",
+      "abweichung glut dunkel",
+      "abweichung glut hell",
+      "abweichung stahl dunkel",
+      "alte-glut #AB5019",
+      "alte-glut #AB5019",
+      "alte-glut #D9713C",
+      "fehlt schrift-mono",
+      "unbekannt $fs-akzent"
+    ]
+  },
+  "wordpress-passt.json": {
+    "streng": true,
+    "exit": 0,
+    "befunde": []
+  },
+  "wordpress-weicht-ab.json": {
+    "streng": false,
+    "exit": 1,
+    "befunde": [
+      "abweichung glut hell",
+      "abweichung groesse-normal",
+      "alte-glut #AB5019",
+      "fehlt zeilenhoehe-ueberschrift",
+      "unbekannt Palette akzent"
+    ]
+  }
+}
