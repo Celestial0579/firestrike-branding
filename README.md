@@ -29,6 +29,7 @@ Feuerstein schlägt auf Stahl, ein Funke springt. Daher ein kühler Stahlgrund u
 | WordPress | `exporte/wordpress/firestrike.json`, `exporte/wordpress/farben.css` | Palette, Schriften, Größen und Abstände für theme.json, dunkles Thema für style.css |
 | Avalonia | `exporte/avalonia/Firestrike.axaml` | `Fs.Grund`, `Fs.Grund.Color` …, `Fs.Groesse.Gross`, `Fs.Abstand.30` … |
 | Anmeldeseite (PatternFly) | `exporte/anmeldeseite.css` | eigenes CSS der Anmeldeseite |
+| Rasterbilder | `exporte/raster/` | Favicon (`favicon.ico` mit 16, 32 und 48 px, `favicon-32.png`), WordPress-Site-Icon (`site-icon-512.png`), Apple-Touch-Icon (`apple-touch-icon-180.png`), Profilbild (`profilbild-400.png`), Windows (`app.ico` mit 16 bis 256 px, `msix/` mit den Größen für MSIX) |
 
 Schriftgrößen, Abstände und Zeilenhöhen stehen in [docs/masse.md](docs/masse.md). Im Web wachsen die größeren Schriftgrößen mit der Fensterbreite, so wie WordPress es rechnet; Apps nehmen die feste Größe.
 
@@ -39,14 +40,15 @@ Ein Export für WinUI 3 folgt. Er braucht eine eigene Akzentreihe und ein Wörte
 ## Ändern
 
 1. `tokens/firestrike.json`, ein Logo oder eine Vorlage anpassen.
-2. `python3 werkzeuge/marke.py erzeugen`
+2. `python3 werkzeuge/marke.py erzeugen`, nach einer Änderung am Symbol auch `python3 werkzeuge/marke.py raster` (braucht `rsvg-convert` aus dem Paket librsvg2-bin)
 3. `python3 werkzeuge/marke.py pruefen`
 4. Pull Request stellen.
 
-Die Prüfung läuft auch bei jedem Push und Pull Request. Sie schlägt fehl, wenn
+Die Prüfung läuft auch bei jedem Push und Pull Request. Ein zweiter Job erzeugt dort die Rasterbilder mit `rsvg-convert` neu, damit der Befehl lauffähig bleibt. Die Prüfung schlägt fehl, wenn
 
 - ein Kontrastpaar in einem der beiden Themen unter seinem Mindestwert liegt (Text 4,5:1, Fokusrahmen 3:1, siehe [docs/kontraste.md](docs/kontraste.md)),
 - eine erzeugte Datei nicht mehr zu den Tokens passt,
+- ein Rasterbild nicht mehr zum Stand seines Quell-SVG passt oder andere Maße hat; die Prüfsummen der Quellen stehen in `exporte/raster/quellen.json`, die Bilddaten selbst vergleicht niemand,
 - `abgleichen` an einem eigenen Export eine Abweichung findet oder eine Prüfdatei unter `tests/abgleich/` nicht das Ergebnis aus `erwartet.json` liefert: dieselben Befunde und, als eigener Aufruf des Befehls, dieselben Exit-Codes mit und ohne `--streng` (bei neuen Tokenwerten die Prüfdateien mit anpassen),
 - ein SVG Skripte, Ereignis-Attribute, Verweise nach außen oder Farben außerhalb der Marke enthält oder `role="img"` und `aria-label` fehlen.
 
@@ -83,7 +85,7 @@ Wo keine Actions laufen, gehört der Schritt in die lokale CI. Dateien ohne eige
 
 ## Lizenz
 
-Code, Tokens, Exporte und Doku stehen unter der [MIT-Lizenz](LICENSE). **Ausgenommen sind Logos, Wortmarke, Symbol und Kacheln** in `logos/` und `kacheln/`. Für sie gilt [MARKE.md](MARKE.md).
+Code, Tokens, Exporte und Doku stehen unter der [MIT-Lizenz](LICENSE). **Ausgenommen sind Logos, Wortmarke, Symbol und Kacheln** in `logos/` und `kacheln/` und die Rasterbilder daraus in `exporte/raster/`. Für sie gilt [MARKE.md](MARKE.md).
 
 ## Sicherheit
 

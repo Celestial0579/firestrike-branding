@@ -55,6 +55,7 @@ So setzen Projekte die Marke ein. Die Werte stehen in [`tokens/firestrike.json`]
 | `logos/firestrike-logo-mono-dark.svg` | einfarbig hell: dunkler Grund, Fotos |
 | `logos/firestrike-symbol.svg` | Symbol: Favicon, App-Symbol, Profilbild |
 
+- Als Rasterbild liegt das Symbol unter `exporte/raster/`: `favicon.ico` und `favicon-32.png` für Browser, `site-icon-512.png` als Website-Icon in WordPress, `apple-touch-icon-180.png`, `profilbild-400.png`, `app.ico` für Windows-Programme und unter `msix/` die Kachelgrößen für MSIX-Pakete. Auf breiten Flächen (Wide310x150, SplashScreen) steht das Symbol mittig auf durchsichtigem Grund.
 - „light“ und „dark“ im Dateinamen meinen das Thema, für das die Datei gedacht ist. Eine Anwendung kann den Namen so aus dem Thema bilden, etwa `firestrike-logo-%(theme)s.svg`.
 - Nicht verzerren, nicht drehen, nicht umfärben. Keine Schatten, Konturen oder Verläufe.
 - Startwerte, Änderungen per Issue: Freiraum rundum mindestens ein Viertel der Logohöhe. Kleinste Größe 120 px Breite für das Logo, 16 px für das Symbol.

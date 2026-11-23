@@ -9,6 +9,9 @@
         vergleicht die Kopie eines Projekts mit den Tokens. FORMAT ist css,
         scss, avalonia oder wordpress, ohne --format gilt die Endung der Datei.
         Exit-Code 0: passt, 1: Abweichung, 2: Aufruf oder Datei unbrauchbar.
+    python3 werkzeuge/marke.py raster
+        erzeugt die Rasterbilder unter exporte/raster neu; braucht rsvg-convert
+        (Paket librsvg2-bin), sonst nur die Standardbibliothek
 
 Nur Standardbibliothek und kein Netzzugriff, damit alles ohne Installation läuft
 (Python 3.10 oder neuer).
@@ -18,9 +21,13 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import hashlib
 import json
 import math
+import os
 import re
+import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -1220,6 +1227,154 @@ def abgleichen(argv: list[str]) -> int:
     return 0
 
 
+# --- Rasterbilder ----------------------------------------------------------------
+
+RASTER = "exporte/raster"
+RASTER_LISTE = "exporte/raster/quellen.json"
+SYMBOL = "logos/firestrike-symbol.svg"
+# Wie groß das Symbol auf breiten Flächen (MSIX Wide und SplashScreen) ist, als Anteil der Höhe.
+SYMBOL_ANTEIL = 0.5
+
+# Datei unter exporte/raster -> (Quell-SVG, Größen als (Breite, Höhe)). ICO-Dateien tragen mehrere Größen.
+RASTERBILDER: dict[str, tuple[str, tuple[tuple[int, int], ...]]] = {
+    "favicon.ico": (SYMBOL, ((16, 16), (32, 32), (48, 48))),
+    "favicon-32.png": (SYMBOL, ((32, 32),)),
+    "site-icon-512.png": (SYMBOL, ((512, 512),)),
+    "apple-touch-icon-180.png": (SYMBOL, ((180, 180),)),
+    "profilbild-400.png": (SYMBOL, ((400, 400),)),
+    "app.ico": (SYMBOL, tuple((g, g) for g in (16, 20, 24, 32, 40, 48, 64, 256))),
+    **{f"msix/Square44x44Logo.scale-{s}.png": (SYMBOL, ((44 * s // 100, 44 * s // 100),)) for s in (100, 200)},
+    **{f"msix/Square44x44Logo.targetsize-{g}.png": (SYMBOL, ((g, g),)) for g in (16, 24, 32, 48, 256)},
+    **{f"msix/Square150x150Logo.scale-{s}.png": (SYMBOL, ((150 * s // 100, 150 * s // 100),)) for s in (100, 200)},
+    **{f"msix/StoreLogo.scale-{s}.png": (SYMBOL, ((50 * s // 100, 50 * s // 100),)) for s in (100, 200)},
+    **{f"msix/Wide310x150Logo.scale-{s}.png": (SYMBOL, ((310 * s // 100, 150 * s // 100),)) for s in (100, 200)},
+    **{f"msix/SplashScreen.scale-{s}.png": (SYMBOL, ((620 * s // 100, 300 * s // 100),)) for s in (100, 200)},
+}
+
+
+def sha256(pfad: Path) -> str:
+    return hashlib.sha256(pfad.read_bytes()).hexdigest()
+
+
+def png_masse(daten: bytes) -> tuple[int, int] | None:
+    """Breite und Höhe aus dem IHDR-Block, ohne die Bilddaten zu lesen."""
+    if len(daten) < 24 or daten[:8] != b"\x89PNG\r\n\x1a\n" or daten[12:16] != b"IHDR":
+        return None
+    return struct.unpack(">II", daten[16:24])
+
+
+def ico_bauen(bilder: list[bytes]) -> bytes:
+    """ICO mit PNG-Einträgen (Windows ab Vista, alle Browser)."""
+    kopf = struct.pack("<HHH", 0, 1, len(bilder))
+    eintraege, rumpf = b"", b""
+    versatz = 6 + 16 * len(bilder)
+    for png in bilder:
+        breite, hoehe = png_masse(png)
+        eintraege += struct.pack("<BBBBHHII", breite % 256, hoehe % 256, 0, 0, 1, 32, len(png), versatz + len(rumpf))
+        rumpf += png
+    return kopf + eintraege + rumpf
+
+
+def ico_masse(daten: bytes) -> list[tuple[int, int]] | None:
+    """Größen der Einträge einer ICO-Datei; jeder Eintrag muss ein PNG passender Größe sein."""
+    if len(daten) < 6:
+        return None
+    reserviert, art, anzahl = struct.unpack("<HHH", daten[:6])
+    if reserviert != 0 or art != 1 or len(daten) < 6 + 16 * anzahl:
+        return None
+    masse = []
+    for i in range(anzahl):
+        b, h, _, _, _, _, laenge, versatz = struct.unpack("<BBBBHHII", daten[6 + 16 * i:22 + 16 * i])
+        png = png_masse(daten[versatz:versatz + laenge])
+        if png is None or png != (b or 256, h or 256):
+            return None
+        masse.append(png)
+    return masse
+
+
+def svg_innen(text: str) -> tuple[str, str]:
+    """viewBox und Inhalt des Wurzelelements."""
+    wurzel = re.search(r"<svg\b[^>]*>", text)
+    box = re.search(r'viewBox="([^"]+)"', wurzel.group(0))
+    return box.group(1), text[wurzel.end():text.rindex("</svg>")]
+
+
+def rendern(werkzeug: str, quelle: Path, breite: int, hoehe: int, arbeit: Path) -> bytes:
+    """Rendert das SVG mit rsvg-convert; auf breiten Flächen mittig mit Rand, ohne Verzerrung."""
+    if breite == hoehe:
+        datei = quelle
+    else:
+        box, innen = svg_innen(quelle.read_text(encoding="utf-8"))
+        seite = round(hoehe * SYMBOL_ANTEIL)
+        datei = arbeit / f"breit-{breite}x{hoehe}.svg"
+        datei.write_text(
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{breite}" height="{hoehe}" '
+            f'viewBox="0 0 {breite} {hoehe}"><svg x="{(breite - seite) // 2}" y="{(hoehe - seite) // 2}" '
+            f'width="{seite}" height="{seite}" viewBox="{box}">{innen}</svg></svg>', encoding="utf-8")
+    ergebnis = subprocess.run([werkzeug, "--format", "png", "--width", str(breite), "--height", str(hoehe), str(datei)],
+                              check=True, capture_output=True, timeout=60)
+    if png_masse(ergebnis.stdout) != (breite, hoehe):
+        raise SystemExit(f"{quelle}: rsvg-convert lieferte kein PNG mit {breite} x {hoehe}")
+    return ergebnis.stdout
+
+
+def raster() -> int:
+    werkzeug = os.environ.get("RSVG_CONVERT") or shutil.which("rsvg-convert")
+    if not werkzeug:
+        print("rsvg-convert fehlt: Paket librsvg2-bin installieren oder RSVG_CONVERT setzen.", file=sys.stderr)
+        return 2
+    version = subprocess.run([werkzeug, "--version"], check=True, capture_output=True, text=True,
+                             timeout=30).stdout.splitlines()[0].strip()
+    ziel = WURZEL / RASTER
+    liste = {"werkzeug": version, "bilder": {}}
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, (quelle, groessen) in RASTERBILDER.items():
+            bilder = [rendern(werkzeug, WURZEL / quelle, b, h, Path(tmp)) for b, h in groessen]
+            inhalt = ico_bauen(bilder) if name.endswith(".ico") else bilder[0]
+            datei = ziel / name
+            datei.parent.mkdir(parents=True, exist_ok=True)
+            if not datei.is_file() or datei.read_bytes() != inhalt:
+                datei.write_bytes(inhalt)
+                print(f"geschrieben: {RASTER}/{name}")
+            liste["bilder"][name] = {"quelle": quelle, "quelle_sha256": sha256(WURZEL / quelle),
+                                     "groessen": [f"{b}x{h}" for b, h in groessen]}
+    text = json.dumps(liste, ensure_ascii=False, indent=2) + "\n"
+    if not (WURZEL / RASTER_LISTE).is_file() or (WURZEL / RASTER_LISTE).read_text(encoding="utf-8") != text:
+        (WURZEL / RASTER_LISTE).write_text(text, encoding="utf-8", newline="\n")
+        print(f"geschrieben: {RASTER_LISTE}")
+    return 0
+
+
+def raster_pruefen() -> tuple[list[str], int]:
+    """Jedes Rasterbild passt zum Stand seiner Quelle (Prüfsumme in der Liste) und hat die richtigen Maße."""
+    hinweis = "bitte python3 werkzeuge/marke.py raster"
+    pfad = WURZEL / RASTER_LISTE
+    if not pfad.is_file():
+        return [f"fehlt: {RASTER_LISTE}, {hinweis}"], 0
+    liste = json.loads(pfad.read_text(encoding="utf-8"))["bilder"]
+    fehler = []
+    vorhanden = {p.relative_to(WURZEL / RASTER).as_posix() for p in (WURZEL / RASTER).rglob("*") if p.is_file()}
+    for name in sorted(vorhanden - set(RASTERBILDER) - {"quellen.json"}):
+        fehler.append(f"{RASTER}/{name}: steht nicht in RASTERBILDER, also nicht erzeugt")
+    for name, (quelle, groessen) in RASTERBILDER.items():
+        eintrag, datei = liste.get(name), WURZEL / RASTER / name
+        if eintrag is None or not datei.is_file():
+            fehler.append(f"fehlt: {RASTER}/{name}, {hinweis}")
+            continue
+        if eintrag["quelle"] != quelle or eintrag["quelle_sha256"] != sha256(WURZEL / quelle):
+            fehler.append(f"veraltet: {RASTER}/{name}, {quelle} hat sich geändert, {hinweis}")
+        soll = [(b, h) for b, h in groessen]
+        if eintrag["groessen"] != [f"{b}x{h}" for b, h in soll]:
+            fehler.append(f"veraltet: {RASTER}/{name}, Größen in der Liste stimmen nicht, {hinweis}")
+        inhalt = datei.read_bytes()
+        ist = ico_masse(inhalt) if name.endswith(".ico") else ([m] if (m := png_masse(inhalt)) else None)
+        if ist != soll:
+            fehler.append(f"{RASTER}/{name}: Maße {ist}, erwartet {soll}")
+    for name in sorted(set(liste) - set(RASTERBILDER)):
+        fehler.append(f"{RASTER_LISTE}: {name} gibt es nicht mehr, {hinweis}")
+    return fehler, len(RASTERBILDER)
+
+
 # --- Befehle --------------------------------------------------------------------
 
 # Die eigenen Exporte, die pruefen mit abgleichen gegen die Tokens hält: Pfad -> streng
@@ -1339,19 +1494,21 @@ def pruefen() -> int:
         fehler += svg_pruefen(svg, erlaubt)
     abgleich_fehler, abgleiche = abgleich_pruefen(daten)
     fehler += abgleich_fehler
+    raster_fehler, rasterbilder = raster_pruefen()
+    fehler += raster_fehler
     if fehler:
         print("Prüfung fehlgeschlagen:")
         print("\n".join(f"  - {f}" for f in fehler))
         return 1
     print(f"Prüfung bestanden: {anzahl} Kontraste, {len(dateien)} erzeugte Dateien, {len(svgs)} SVGs, "
-          f"{abgleiche} Abgleiche.")
+          f"{abgleiche} Abgleiche, {rasterbilder} Rasterbilder.")
     return 0
 
 
 def main(argv: list[str]) -> int:
     if len(argv) >= 2 and argv[1] == "abgleichen":
         return abgleichen(argv[2:])
-    befehle = {"erzeugen": erzeugen, "pruefen": pruefen}
+    befehle = {"erzeugen": erzeugen, "pruefen": pruefen, "raster": raster}
     if len(argv) != 2 or argv[1] not in befehle:
         print(__doc__.strip(), file=sys.stderr)
         return 2
