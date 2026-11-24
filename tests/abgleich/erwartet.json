@@ -84,6 +84,13 @@
     "exit_streng": 0,
     "befunde": []
   },
+  "avalonia-pinsel-fehlt.axaml": {
+    "exit": 0,
+    "exit_streng": 1,
+    "befunde": [
+      "fehlt glut/brush dunkel"
+    ]
+  },
   "avalonia-weicht-ab.axaml": {
     "exit": 1,
     "exit_streng": 1,
@@ -101,13 +108,33 @@
       "fehlt abstand-50",
       "fehlt abstand-60",
       "fehlt abstand-70",
+      "fehlt flaeche-tief/brush dunkel",
+      "fehlt flaeche-tief/brush hell",
+      "fehlt flaeche/brush dunkel",
+      "fehlt flaeche/brush hell",
       "fehlt fokus dunkel",
+      "fehlt fokus/brush hell",
+      "fehlt funke/brush dunkel",
+      "fehlt funke/brush hell",
+      "fehlt glut/brush dunkel",
       "fehlt groesse-gross",
       "fehlt groesse-klein",
       "fehlt groesse-normal",
       "fehlt groesse-sehr-gross",
       "fehlt groesse-titel",
+      "fehlt grund/brush dunkel",
+      "fehlt grund/brush hell",
+      "fehlt linie/brush dunkel",
+      "fehlt linie/brush hell",
       "fehlt staerke-ueberschrift",
+      "fehlt stahl-tief/brush dunkel",
+      "fehlt stahl-tief/brush hell",
+      "fehlt stahl/brush dunkel",
+      "fehlt stahl/brush hell",
+      "fehlt text-leise/brush dunkel",
+      "fehlt text-leise/brush hell",
+      "fehlt text/brush dunkel",
+      "fehlt text/brush hell",
       "fehlt zeilenhoehe-text",
       "fehlt zeilenhoehe-ueberschrift",
       "unbekannt Fs.Orange.Color"
@@ -356,6 +383,19 @@
     "exit_streng": 2,
     "befunde": null
   },
+  "winui-akzent-nur-hell.xaml": {
+    "exit": 0,
+    "exit_streng": 1,
+    "befunde": [
+      "fehlt akzent-SystemAccentColor dunkel",
+      "fehlt akzent-SystemAccentColorDark1 dunkel",
+      "fehlt akzent-SystemAccentColorDark2 dunkel",
+      "fehlt akzent-SystemAccentColorDark3 dunkel",
+      "fehlt akzent-SystemAccentColorLight1 dunkel",
+      "fehlt akzent-SystemAccentColorLight2 dunkel",
+      "fehlt akzent-SystemAccentColorLight3 dunkel"
+    ]
+  },
   "winui-oberste-ebene.xaml": {
     "exit": 1,
     "exit_streng": 1,
@@ -370,6 +410,14 @@
     "exit": 0,
     "exit_streng": 0,
     "befunde": []
+  },
+  "winui-pinsel-fehlt.xaml": {
+    "exit": 0,
+    "exit_streng": 1,
+    "befunde": [
+      "fehlt glut/brush dunkel",
+      "fehlt glut/brush kontrast"
+    ]
   },
   "winui-weicht-ab.xaml": {
     "exit": 1,
@@ -389,7 +437,46 @@
       "alte-glut #AB5019",
       "alte-glut #AB5019",
       "alte-glut #D9713C",
+      "fehlt akzent-SystemAccentColor dunkel",
+      "fehlt akzent-SystemAccentColorDark1 dunkel",
+      "fehlt akzent-SystemAccentColorDark2 dunkel",
+      "fehlt akzent-SystemAccentColorDark3 dunkel",
+      "fehlt akzent-SystemAccentColorLight1 dunkel",
+      "fehlt akzent-SystemAccentColorLight2 dunkel",
+      "fehlt akzent-SystemAccentColorLight3 dunkel",
+      "fehlt flaeche-tief/brush dunkel",
+      "fehlt flaeche-tief/brush hell",
+      "fehlt flaeche-tief/color kontrast",
+      "fehlt flaeche/brush dunkel",
+      "fehlt flaeche/brush hell",
+      "fehlt flaeche/color kontrast",
+      "fehlt fokus/brush hell",
+      "fehlt fokus/color dunkel",
+      "fehlt funke/brush dunkel",
+      "fehlt funke/brush hell",
+      "fehlt funke/color kontrast",
+      "fehlt glut/brush dunkel",
+      "fehlt glut/brush hell",
+      "fehlt glut/color kontrast",
+      "fehlt grund/brush dunkel",
+      "fehlt grund/brush hell",
+      "fehlt grund/color kontrast",
       "fehlt kontrast-fokus",
+      "fehlt linie/brush dunkel",
+      "fehlt linie/brush hell",
+      "fehlt linie/color kontrast",
+      "fehlt stahl-tief/brush dunkel",
+      "fehlt stahl-tief/brush hell",
+      "fehlt stahl-tief/color kontrast",
+      "fehlt stahl/brush dunkel",
+      "fehlt stahl/brush hell",
+      "fehlt stahl/color kontrast",
+      "fehlt text-leise/brush dunkel",
+      "fehlt text-leise/brush hell",
+      "fehlt text-leise/color kontrast",
+      "fehlt text/brush dunkel",
+      "fehlt text/brush hell",
+      "fehlt text/color kontrast",
       "unbekannt FsOrangeColor"
     ]
   },

@@ -763,6 +763,8 @@ class Eintrag:
     ist: str                                  # so, wie er in der Datei steht
     zeile: int
     verweis: tuple[str, str] | None = None    # (Rolle, Thema), wenn der Wert auf eine Farbrolle zeigt
+    art: str = ""                             # XAML: Color oder Brush, sonst leer
+    themen: tuple[str, ...] = ()              # XAML: wo ein Wert ohne Thema gilt (Akzentreihe, Hoher Kontrast)
 
 
 # Was ein Leser liefert: Einträge, unbekannte Namen (Name, Zeile) und Unlesbares (Name, Zeile, Grund).
@@ -1131,8 +1133,9 @@ def xaml_lesen(daten: dict, text: str, fmt: str) -> Gelesen:
             eintraege.append(Eintrag(werte[k], "", wert, e["zeile"]))
             continue
         if win and k in AKZENTSTUFEN:
-            if any(t in THEMEN for t in gilt_fuer):
-                eintraege.append(Eintrag(f"akzent-{k}", "", wert, e["zeile"]))
+            themen_hier = tuple(t for t in gilt_fuer if t in THEMEN)
+            if themen_hier:
+                eintraege.append(Eintrag(f"akzent-{k}", "", wert, e["zeile"], themen=themen_hier))
             continue
         m = farbe.fullmatch(k)
         if not m or m.group(1) not in rolle_von:
@@ -1140,14 +1143,16 @@ def xaml_lesen(daten: dict, text: str, fmt: str) -> Gelesen:
                 unbekannt.append((k, e["zeile"]))
             continue
         rolle = rolle_von[m.group(1)]
+        art = "Color" if m.group(2) in ("Color", ".Color") else "Brush"
         ref = re.fullmatch(verweis_muster, wert)
         for thema in gilt_fuer:
             if thema == "kontrast":
                 system = re.fullmatch(r"\{ThemeResource\s+(\w+)\s*\}", wert)
-                eintraege.append(Eintrag(f"kontrast-{rolle}", "", system.group(1) if system else wert, e["zeile"]))
+                eintraege.append(Eintrag(f"kontrast-{rolle}", "", system.group(1) if system else wert, e["zeile"],
+                                         art=art, themen=("kontrast",)))
                 continue
             verweis = (rolle_von[ref.group(1)], thema) if ref and ref.group(1) in rolle_von else None
-            eintraege.append(Eintrag(rolle, thema, wert, e["zeile"], verweis))
+            eintraege.append(Eintrag(rolle, thema, wert, e["zeile"], verweis, art=art))
     return eintraege, unbekannt, []
 
 
@@ -1394,6 +1399,8 @@ def abgleich(daten: dict, pfad: Path, fmt: str | None) -> tuple[str, list[Befund
     for schluessel in soll_w:
         if (schluessel, "") not in da:
             befunde.append(Befund("fehlt", schluessel, "", f"fehlt: {schluessel}"))
+    if xaml:
+        befunde += xaml_luecken(daten, fmt, eintraege)
     zeile_bei = Zeilen(text)
     for name, zeile, grund in unlesbar:
         befunde.append(Befund("unlesbar", name, "", f"nicht auswertbar: {name} (Zeile {zeile}): {grund}"))
@@ -1404,6 +1411,42 @@ def abgleich(daten: dict, pfad: Path, fmt: str | None) -> tuple[str, list[Befund
     for name, zeile in unbekannt:
         befunde.append(Befund("unbekannt", name, "", f"unbekannt: {name}" + (f" (Zeile {zeile})" if zeile else "")))
     return fmt, befunde, len(eintraege)
+
+
+def xaml_luecken(daten: dict, fmt: str, eintraege: list[Eintrag]) -> list[Befund]:
+    """Lücken, die die Zählung je Rolle und Thema übersieht (#15): Steht von einer Rolle in einem Thema nur die Farbe
+    oder nur der Pinsel da, fehlt der andere zur Laufzeit („Ressource nicht gefunden“, im Hohen Kontrast nur, solange
+    er an ist). Bei WinUI gilt das auch für den Hohen Kontrast, und die Stufen der Akzentreihe gehören in beide
+    Themen: Fehlen sie in einem, nimmt WinUI dort die Akzentfarbe des Systems statt Glut. Was ganz fehlt, meldet
+    abgleich schon ohne Art und Thema."""
+    befunde: list[Befund] = []
+    win = fmt == "winui"
+
+    def schluessel(rolle: str, art: str) -> str:
+        n = pascal(rolle)
+        return f"Fs{n}{art}" if win else f"Fs.{n}" + (".Color" if art == "Color" else "")
+
+    farben = {(e.name, e.thema, e.art) for e in eintraege if e.thema and e.art}
+    kontrast = {(e.name, e.art) for e in eintraege if e.name.startswith("kontrast-") and e.art}
+    for f in daten["farben"]:
+        rolle = f["rolle"]
+        orte = [(t, {a for n, th, a in farben if n == rolle and th == t}) for t in THEMEN]
+        if win:
+            orte.append(("kontrast", {a for n, a in kontrast if n == f"kontrast-{rolle}"}))
+        for thema, arten in orte:
+            for art in ("Color", "Brush"):
+                if arten and art not in arten:
+                    was = "der Pinsel" if art == "Brush" else "die Farbe"
+                    befunde.append(Befund("fehlt", f"{rolle}/{art.lower()}", thema,
+                                          f"fehlt: {rolle}, {thema}: {was} {schluessel(rolle, art)}"))
+    if win:
+        for stufe in AKZENTSTUFEN:
+            themen = {t for e in eintraege if e.name == f"akzent-{stufe}" for t in e.themen}
+            for thema in THEMEN:
+                if themen and thema not in themen:
+                    befunde.append(Befund("fehlt", f"akzent-{stufe}", thema,
+                                          f"fehlt: {stufe}, {thema}: dort gilt die Akzentfarbe des Systems"))
+    return befunde
 
 
 def ist_fehler(b: Befund, streng: bool) -> bool:
