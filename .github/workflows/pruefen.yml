@@ -47,9 +47,21 @@ jobs:
           exit 1
       # Die Bilder entstehen mit einem festen Werkzeug, nicht von Hand. Hier
       # zeigt sich, dass der Befehl läuft und Bilder in den richtigen Maßen
-      # liefert. Die Bytes vergleicht niemand: Sie hängen an der Version von
-      # librsvg, die Prüfung hält sich an die Prüfsummen der Quellen.
+      # liefert. Die Bytes hängen an der Version von librsvg: Nur wenn
+      # rsvg-convert hier dieselbe Version hat, mit der die eingecheckten
+      # Bilder entstanden sind (exporte/raster/quellen.json, vor dem Erzeugen
+      # gelesen, denn raster schreibt die Liste neu), müssen die neuen Bilder
+      # den eingecheckten gleichen (#8). Sonst hält sich die Prüfung an die
+      # Prüfsummen der Quellen.
       - name: Rasterbilder erzeugen und prüfen
         run: |
+          soll=$(python3 -c 'import json; print(json.load(open("exporte/raster/quellen.json", encoding="utf-8"))["werkzeug"])')
+          ist=$(rsvg-convert --version | head -n 1)
           python3 werkzeuge/marke.py raster
           python3 werkzeuge/marke.py pruefen
+          if [ "$ist" = "$soll" ]; then
+            git diff --exit-code --stat -- exporte/raster
+            echo "Rasterbilder byte-gleich mit den eingecheckten ($ist)."
+          else
+            echo "Rasterbilder nicht byteweise verglichen: $ist, eingecheckt mit $soll."
+          fi

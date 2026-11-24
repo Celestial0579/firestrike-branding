@@ -46,7 +46,7 @@ WinUI 3 bekommt zusätzlich eine Akzentreihe aus Glut und Funke. WinUI nimmt im 
 3. `python3 werkzeuge/marke.py pruefen`, nach einer Änderung an `marke.py` auch `python3 -m unittest discover -s tests/werkzeug`
 4. Pull Request stellen.
 
-Die Prüfung läuft auch bei jedem Push und Pull Request, dazu die Tests unter `tests/werkzeug`. Ein zweiter Job erzeugt dort die Rasterbilder mit `rsvg-convert` neu, damit der Befehl lauffähig bleibt. Die Prüfung schlägt fehl, wenn
+Die Prüfung läuft auch bei jedem Push und Pull Request, dazu die Tests unter `tests/werkzeug`. Ein zweiter Job erzeugt dort die Rasterbilder mit `rsvg-convert` neu, damit der Befehl lauffähig bleibt. Hat `rsvg-convert` dort dieselbe Version, mit der die eingecheckten Bilder entstanden sind (`werkzeug` in `exporte/raster/quellen.json`), müssen die neuen Bilder byte-gleich sein. Die Prüfung schlägt fehl, wenn
 
 - ein Kontrastpaar in einem der beiden Themen unter seinem Mindestwert liegt (Text 4,5:1, Fokusrahmen 3:1, siehe [docs/kontraste.md](docs/kontraste.md)),
 - eine erzeugte Datei nicht mehr zu den Tokens passt,
