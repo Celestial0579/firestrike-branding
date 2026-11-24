@@ -699,7 +699,9 @@ def masse_md(daten: dict) -> str:
     return "\n".join(z) + "\n"
 
 
-def erzeugte(daten: dict) -> dict[str, str]:
+def erzeugte(daten: dict, fehlend: list[str] | None = None) -> dict[str, str]:
+    """Alle Dateien, die aus den Tokens und den Logos entstehen. Fehlt die farbige Quelle eines einfarbigen Logos,
+    landet das in `fehlend` (pruefen meldet es als Befund) oder bricht mit derselben Meldung ab (#9)."""
     wp_json, wp_css = wordpress(daten)
     dateien = {
         "exporte/firestrike.css": css(daten),
@@ -714,6 +716,12 @@ def erzeugte(daten: dict) -> dict[str, str]:
         "docs/masse.md": masse_md(daten),
     }
     for ziel, (quelle, rolle, thema) in EINFARBIG.items():
+        if not (WURZEL / quelle).is_file():
+            meldung = f"fehlt: {quelle}, {WORTMARKE_HINWEIS}"
+            if fehlend is None:
+                raise SystemExit(meldung)
+            fehlend.append(meldung)
+            continue
         dateien[ziel] = einfarbig(daten, quelle, rolle, thema)
     return dateien
 
@@ -1543,6 +1551,9 @@ def raster_pruefen() -> tuple[list[str], int]:
         if eintrag is None or not datei.is_file():
             fehler.append(f"fehlt: {RASTER}/{name}, {hinweis}")
             continue
+        if not (WURZEL / quelle).is_file():
+            fehler.append(f"fehlt: {quelle}, die Quelle der Rasterbilder")
+            continue
         if eintrag["quelle"] != quelle or eintrag["quelle_sha256"] != sha256(WURZEL / quelle):
             fehler.append(f"veraltet: {RASTER}/{name}, {quelle} hat sich geändert, {hinweis}")
         soll = [(b, h) for b, h in groessen]
@@ -1560,6 +1571,7 @@ def raster_pruefen() -> tuple[list[str], int]:
 # --- Wortmarke als Pfade ---------------------------------------------------------
 
 WORTMARKE_SCHRIFT = ("Liberation Sans", "Bold")
+WORTMARKE_HINWEIS = "bitte python3 werkzeuge/marke.py wortmarke mit Liberation Sans Bold"
 PFADE_QUELLE = "logos/quellen/quelle.json"
 # Logo mit Pfaden -> Logo mit Text, aus dem es entsteht. Die Text-Fassungen sind die
 # Quelle zum Bearbeiten (Laufweite, Lage); die Logos selbst tragen nur noch Pfade.
@@ -1755,7 +1767,7 @@ def wortmarke(argv: list[str]) -> int:
 
 def pfade_pruefen() -> list[str]:
     """Die Logos mit Pfaden passen zum Stand der Logos mit Text und enthalten keinen Text mehr."""
-    hinweis = "bitte python3 werkzeuge/marke.py wortmarke mit Liberation Sans Bold"
+    hinweis = WORTMARKE_HINWEIS
     if not (WURZEL / PFADE_QUELLE).is_file():
         return [f"fehlt: {PFADE_QUELLE}, {hinweis}"]
     quellen = json.loads((WURZEL / PFADE_QUELLE).read_text(encoding="utf-8"))["quellen"]
@@ -1765,7 +1777,9 @@ def pfade_pruefen() -> list[str]:
             fehler.append(f"fehlt: {ziel}, {hinweis}")
         elif "<text" in (WURZEL / ziel).read_text(encoding="utf-8"):
             fehler.append(f"{ziel}: enthält noch <text>")
-        if quellen.get(quelle) != sha256(WURZEL / quelle):
+        if not (WURZEL / quelle).is_file():
+            fehler.append(f"fehlt: {quelle}, die Fassung mit Text, aus der {ziel} entsteht")
+        elif quellen.get(quelle) != sha256(WURZEL / quelle):
             fehler.append(f"veraltet: {ziel}, {quelle} hat sich geändert, {hinweis}")
     return fehler
 
@@ -1881,7 +1895,9 @@ def pruefen() -> int:
         anzahl += 1
         if kontrast(vw, hw) < 4.5:
             fehler.append(f"WinUI {t}: {vn} {vw} auf {hn} {hw} = {zahl(kontrast(vw, hw))}:1, braucht 4,5:1 ({zweck})")
-    dateien = erzeugte(daten)
+    fehlend: list[str] = []
+    dateien = erzeugte(daten, fehlend)
+    fehler += fehlend
     for pfad, inhalt in dateien.items():
         ziel = WURZEL / pfad
         if not ziel.is_file():
@@ -1896,6 +1912,7 @@ def pruefen() -> int:
     fehler += abgleich_fehler
     raster_fehler, rasterbilder = raster_pruefen()
     fehler += raster_fehler + pfade_pruefen()
+    fehler = list(dict.fromkeys(fehler))   # dieselbe fehlende Datei melden mehrere Schritte
     if fehler:
         print("Prüfung fehlgeschlagen:")
         print("\n".join(f"  - {f}" for f in fehler))
