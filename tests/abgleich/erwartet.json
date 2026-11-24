@@ -7,6 +7,70 @@
       "abweichung glut hell"
     ]
   },
+  "avalonia-default-allein.axaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung flaeche dunkel",
+      "abweichung flaeche dunkel",
+      "abweichung flaeche-tief dunkel",
+      "abweichung flaeche-tief dunkel",
+      "abweichung fokus dunkel",
+      "abweichung fokus dunkel",
+      "abweichung funke dunkel",
+      "abweichung funke dunkel",
+      "abweichung glut dunkel",
+      "abweichung glut dunkel",
+      "abweichung grund dunkel",
+      "abweichung grund dunkel",
+      "abweichung linie dunkel",
+      "abweichung linie dunkel",
+      "abweichung stahl dunkel",
+      "abweichung stahl dunkel",
+      "abweichung stahl-tief dunkel",
+      "abweichung stahl-tief dunkel",
+      "abweichung text dunkel",
+      "abweichung text dunkel",
+      "abweichung text-leise dunkel",
+      "abweichung text-leise dunkel"
+    ]
+  },
+  "avalonia-default-hell-dunkel.axaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut dunkel",
+      "abweichung glut dunkel"
+    ]
+  },
+  "avalonia-default-hell.axaml": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung flaeche dunkel",
+      "abweichung flaeche dunkel",
+      "abweichung flaeche-tief dunkel",
+      "abweichung flaeche-tief dunkel",
+      "abweichung fokus dunkel",
+      "abweichung fokus dunkel",
+      "abweichung funke dunkel",
+      "abweichung funke dunkel",
+      "abweichung glut dunkel",
+      "abweichung glut dunkel",
+      "abweichung grund dunkel",
+      "abweichung grund dunkel",
+      "abweichung linie dunkel",
+      "abweichung linie dunkel",
+      "abweichung stahl dunkel",
+      "abweichung stahl dunkel",
+      "abweichung stahl-tief dunkel",
+      "abweichung stahl-tief dunkel",
+      "abweichung text dunkel",
+      "abweichung text dunkel",
+      "abweichung text-leise dunkel",
+      "abweichung text-leise dunkel"
+    ]
+  },
   "avalonia-oberste-ebene.axaml": {
     "exit": 1,
     "exit_streng": 1,
