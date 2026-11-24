@@ -7,7 +7,7 @@
         prüft Tokens, Kontraste, erzeugte Dateien, SVGs und den Abgleich
     python3 werkzeuge/marke.py abgleichen DATEI [--format FORMAT] [--streng]
         vergleicht die Kopie eines Projekts mit den Tokens. FORMAT ist css,
-        scss, avalonia oder wordpress, ohne --format gilt die Endung der Datei.
+        scss, avalonia, winui oder wordpress, ohne --format gilt die Endung.
         Exit-Code 0: passt, 1: Abweichung, 2: Aufruf oder Datei unbrauchbar.
     python3 werkzeuge/marke.py raster
         erzeugt die Rasterbilder unter exporte/raster neu; braucht rsvg-convert
@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import bisect
+import colorsys
 import hashlib
 import json
 import math
@@ -112,6 +113,7 @@ def laden() -> dict:
             if r not in rollen:
                 fehler.append(f"Paar mit unbekannter Rolle {r!r}")
     fehler += masse_pruefen(daten)
+    fehler += winui_pruefen(daten, rollen)
     if fehler:
         raise SystemExit(f"{TOKENS}:\n  " + "\n  ".join(fehler))
     daten["wert"] = {
@@ -162,6 +164,68 @@ def masse_pruefen(daten: dict) -> list[str]:
     if satz["staerke-ueberschrift"] not in {str(z) for z in XAML_STAERKE}:
         fehler.append("satz.staerke-ueberschrift: erwartet 100, 200 … 900")
     return fehler
+
+
+SYSTEMFARBEN = {"SystemColorWindowColor", "SystemColorWindowTextColor", "SystemColorHighlightColor",
+                "SystemColorHighlightTextColor", "SystemColorHotlightColor", "SystemColorGrayTextColor",
+                "SystemColorButtonFaceColor", "SystemColorButtonTextColor"}
+AKZENTSTUFEN = ("SystemAccentColor", "SystemAccentColorLight1", "SystemAccentColorLight2", "SystemAccentColorLight3",
+                "SystemAccentColorDark1", "SystemAccentColorDark2", "SystemAccentColorDark3")
+# Welche Stufe WinUI wofür nimmt (microsoft-ui-xaml, controls/dev/CommonStyles/Common_themeresources_any.xaml):
+# Akzentfläche, Verweise (normal, beim Überfahren, beim Drücken) und die Schrift auf der Akzentfläche.
+WINUI_NUTZUNG = {
+    "hell": {"flaeche": "SystemAccentColorDark1",
+             "text": ("SystemAccentColorDark2", "SystemAccentColorDark3", "SystemAccentColorDark1"),
+             "schrift": "#FFFFFF"},
+    "dunkel": {"flaeche": "SystemAccentColorLight2",
+               "text": ("SystemAccentColorLight3", "SystemAccentColorLight2"),
+               "schrift": "#000000"},
+}
+
+
+def winui_pruefen(daten: dict, rollen: dict) -> list[str]:
+    winui, fehler = daten["winui"], []
+    stufen = [s["stufe"] for s in winui["akzentreihe"]]
+    if sorted(stufen) != sorted(AKZENTSTUFEN):
+        fehler.append(f"winui.akzentreihe: braucht genau die Stufen {', '.join(AKZENTSTUFEN)}")
+    for s in winui["akzentreihe"]:
+        if s["rolle"] not in rollen or s["thema"] not in THEMEN or rollen[s["rolle"]][s["thema"]].startswith("="):
+            fehler.append(f"winui {s['stufe']}: Rolle mit eigenem Wert und Thema hell oder dunkel nötig")
+        if not isinstance(s["helligkeit"], (int, float)) or not -0.5 <= s["helligkeit"] <= 0.5:
+            fehler.append(f"winui {s['stufe']}: helligkeit zwischen -0.5 und 0.5")
+    kontrast_rollen = winui["hoher-kontrast"]
+    if set(kontrast_rollen) != set(rollen):
+        fehler.append("winui.hoher-kontrast: jede Farbrolle genau einmal")
+    for rolle, farbe in kontrast_rollen.items():
+        if farbe not in SYSTEMFARBEN:
+            fehler.append(f"winui.hoher-kontrast.{rolle}: {farbe} ist keine Systemfarbe von WinUI")
+    return fehler
+
+
+def helligkeit(farbe: str, schritt: float) -> str:
+    """Verschiebt die HSL-Helligkeit, Farbton und Sättigung bleiben."""
+    r, g, b = (int(farbe[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    r, g, b = colorsys.hls_to_rgb(h, min(1.0, max(0.0, l + schritt)), s)
+    return "#" + "".join(f"{round(c * 255):02X}" for c in (r, g, b))
+
+
+def akzentreihe(daten: dict) -> dict[str, str]:
+    """Stufe -> Farbe, in der Reihenfolge der Tokens."""
+    return {s["stufe"]: helligkeit(daten["wert"][s["thema"]][s["rolle"]], s["helligkeit"])
+            for s in daten["winui"]["akzentreihe"]}
+
+
+def winui_paare(daten: dict):
+    """(Thema, vorne, hinten, Zweck) für jede Stufe, die WinUI als Schrift oder Fläche nimmt."""
+    reihe, wert = akzentreihe(daten), daten["wert"]
+    for t, nutzung in WINUI_NUTZUNG.items():
+        for stufe in nutzung["text"]:
+            for hinten in ("grund", "flaeche", "flaeche-tief"):
+                yield t, (stufe, reihe[stufe]), (hinten, wert[t][hinten]), "Verweis"
+        flaeche = (nutzung["flaeche"], reihe[nutzung["flaeche"]])
+        yield t, ("Schrift von WinUI", nutzung["schrift"]), flaeche, "Schrift auf Akzentfläche"
+        yield t, ("flaeche", wert[t]["flaeche"]), flaeche, "Schrift auf Akzentfläche"
 
 
 def leuchtdichte(farbe: str) -> float:
@@ -465,6 +529,69 @@ def avalonia(daten: dict) -> str:
     return "\n".join(z) + "\n"
 
 
+# --- WinUI 3 ------------------------------------------------------------------
+
+
+def winui_schluessel(avalonia_schluessel: str) -> str:
+    """Fs.Font.Sans -> FsFontSans: WinUI-Schlüssel ohne Punkte."""
+    return avalonia_schluessel.replace(".", "")
+
+
+def winui(daten: dict) -> str:
+    form, wert, satz = daten["form"], daten["wert"], daten["satz"]
+    reihe, kontrast_rollen = akzentreihe(daten), daten["winui"]["hoher-kontrast"]
+    z = ["<!--", *(f"  {s}" for s in kopf(daten)),
+         "  Farben heißen nach ihrer Rolle (FsGrundColor, FsGrundBrush …), nie nach dem Farbton.",
+         "  In App.xaml nach XamlControlsResources einbinden, damit die Akzentreihe gilt:",
+         '    <ResourceDictionary Source="ms-appx:///Themes/Firestrike.xaml" />',
+         "  Im Modus Hoher Kontrast zeigen die Rollen auf Systemfarben. Für Oberflächen die",
+         "  Brush-Schlüssel nehmen: Sie folgen einem Wechsel des Kontrastdesigns sofort,",
+         "  die Color-Schlüssel erst beim nächsten Laden.",
+         "-->",
+         '<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"',
+         '                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">',
+         "  <ResourceDictionary.ThemeDictionaries>"]
+    for t, schluessel in (("hell", "Light"), ("dunkel", "Dark")):
+        z.append(f'    <ResourceDictionary x:Key="{schluessel}">')
+        for f in daten["farben"]:
+            n = pascal(f["rolle"])
+            z += [f"      <!-- {f['zweck']} -->",
+                  f'      <Color x:Key="Fs{n}Color">{wert[t][f["rolle"]]}</Color>',
+                  f'      <SolidColorBrush x:Key="Fs{n}Brush" Color="{{StaticResource Fs{n}Color}}" />']
+        z.append("      <!-- Akzentreihe aus Glut und Funke, in beiden Themen gleich. Siehe docs/kontraste.md. -->")
+        z += [f'      <Color x:Key="{stufe}">{farbe}</Color>' for stufe, farbe in reihe.items()]
+        z.append("    </ResourceDictionary>")
+    z += ['    <ResourceDictionary x:Key="HighContrast">',
+          "      <!-- Jede Rolle auf eine Systemfarbe. Die Akzentreihe bleibt die des Systems. -->"]
+    for f in daten["farben"]:
+        n, system = pascal(f["rolle"]), kontrast_rollen[f["rolle"]]
+        z += [f'      <StaticResource x:Key="Fs{n}Color" ResourceKey="{system}" />',
+              f'      <SolidColorBrush x:Key="Fs{n}Brush" Color="{{ThemeResource {system}}}" />']
+    z += ["    </ResourceDictionary>",
+          "  </ResourceDictionary.ThemeDictionaries>", "",
+          "  <!-- Kanten bleiben Kanten: die Radien von Fluent auf 0. -->",
+          f'  <CornerRadius x:Key="ControlCornerRadius">{form["radius"]}</CornerRadius>',
+          f'  <CornerRadius x:Key="OverlayCornerRadius">{form["radius"]}</CornerRadius>',
+          "  <!-- Tastaturfokus: durchgezogen, mit Abstand. -->",
+          f'  <Thickness x:Key="FsFocusThickness">{ohne_px(form["fokus-staerke"])}</Thickness>',
+          f'  <Thickness x:Key="FsFocusOffset">{ohne_px(form["fokus-abstand"])}</Thickness>',
+          "  <!-- Nur Systemschriften, es wird nichts ausgeliefert. -->"]
+    z += [f'  <FontFamily x:Key="FsFont{pascal(k)}">{v["xaml"]}</FontFamily>' for k, v in daten["schrift"].items()]
+    z += ["  <!-- Schriftgrößen und Abstände in Pixeln (1rem = 16 px). Apps nehmen die feste Größe. -->"]
+    z += [f'  <x:Double x:Key="FsGroesse{pascal(s["rolle"])}">{px(s["wert"])}</x:Double>'
+          for s in daten["groessen"]["stufen"]]
+    z += [f'  <x:Double x:Key="FsAbstand{a["stufe"]}">{px(a["wert"])}</x:Double>' for a in daten["abstaende"]]
+    z.append("  <!-- Zeilenhöhen als Faktor der Schriftgröße, Stärke der Überschriften. -->")
+    for k, v in satz.items():
+        name = winui_schluessel(xaml_satz(k))
+        if k.startswith("staerke-"):
+            z.append(f'  <FontWeight x:Key="{name}">{XAML_STAERKE[int(v)]}</FontWeight>')
+        else:
+            z.append(f'  <x:Double x:Key="{name}">{v}</x:Double>')
+    z.append("</ResourceDictionary>")
+    return "\n".join(z) + "\n"
+
+
 # --- Anmeldeseite, Logos, Doku --------------------------------------------------
 
 
@@ -530,6 +657,16 @@ def kontraste_md(daten: dict) -> str:
     for p in daten["schmuckpaare"]:
         v, h = p["vorne"], p["hinten"]
         z.append(f"| {name[v]} | {name[h]} | {k(v, h, 'hell')} | {k(v, h, 'dunkel')} | {p['hinweis']} |")
+    z += ["", "## WinUI-Akzentreihe", "",
+          "Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). WinUI nimmt im hellen Thema "
+          "Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und "
+          "Light3 und Light2 für Verweise. Auf Akzentflächen schreibt WinUI weiß (hell) und schwarz (dunkel). "
+          "Jedes Paar braucht 4,5:1.", "",
+          "| Stufe | Farbe |", "|---|---|"]
+    z += [f"| {stufe} | {farbe} |" for stufe, farbe in akzentreihe(daten).items()]
+    z += ["", "| Thema | Vorne | Hinten | Kontrast | Wofür |", "|---|---|---|---:|---|"]
+    for t, (vn, vw), (hn, hw), zweck in winui_paare(daten):
+        z.append(f"| {t} | {name.get(vn, vn)} {vw} | {name.get(hn, hn)} {hw} | {zahl(kontrast(vw, hw))}:1 | {zweck} |")
     return "\n".join(z) + "\n"
 
 
@@ -572,6 +709,7 @@ def erzeugte(daten: dict) -> dict[str, str]:
         "exporte/wordpress/firestrike.json": wp_json,
         "exporte/wordpress/farben.css": wp_css,
         "exporte/avalonia/Firestrike.axaml": avalonia(daten),
+        "exporte/winui/Firestrike.xaml": winui(daten),
         "exporte/anmeldeseite.css": anmeldeseite(daten),
         "docs/farbtafel.svg": farbtafel(daten),
         "docs/kontraste.md": kontraste_md(daten),
@@ -585,8 +723,9 @@ def erzeugte(daten: dict) -> dict[str, str]:
 # --- Abgleich -------------------------------------------------------------------
 
 ALTE_GLUT = re.compile(r"#(?:AB5019|D9713C)\b", re.I)
-ENDUNGEN = {".css": "css", ".scss": "scss", ".axaml": "avalonia", ".json": "wordpress"}
-FORMATE = ("css", "scss", "avalonia", "wordpress")
+ENDUNGEN = {".css": "css", ".scss": "scss", ".axaml": "avalonia", ".xaml": "winui", ".json": "wordpress"}
+FORMATE = ("css", "scss", "avalonia", "winui", "wordpress")
+XAML_FORMATE = ("avalonia", "winui")
 XAML_NS = "http://schemas.microsoft.com/winfx/2006/xaml"
 GROESSTE_DATEI = 2 * 1024 * 1024
 
@@ -914,16 +1053,31 @@ def xaml_elemente(text: str) -> list[dict]:
     return elemente
 
 
-def avalonia_lesen(daten: dict, text: str) -> Gelesen:
+def xaml_lesen(daten: dict, text: str, fmt: str) -> Gelesen:
+    """Avalonia (Fs.Glut, Fs.Glut.Color) und WinUI (FsGlutBrush, FsGlutColor, Akzentreihe, Hoher Kontrast)."""
+    win = fmt == "winui"
     rolle_von = {pascal(f["rolle"]): f["rolle"] for f in daten["farben"]}
-    rollen = set(rolle_von.values())
+
+    def name(avalonia_schluessel: str) -> str:
+        return winui_schluessel(avalonia_schluessel) if win else avalonia_schluessel
+
     werte = {"ControlCornerRadius": "radius", "OverlayCornerRadius": "radius",
-             "Fs.FocusThickness": "fokus-staerke", "Fs.FocusOffset": "fokus-abstand"}
-    werte.update({f"Fs.Font.{pascal(k)}": f"schrift-{k}" for k in daten["schrift"]})
-    werte.update({f"Fs.Groesse.{pascal(s['rolle'])}": f"groesse-{s['rolle']}" for s in daten["groessen"]["stufen"]})
-    werte.update({f"Fs.Abstand.{a['stufe']}": f"abstand-{a['stufe']}" for a in daten["abstaende"]})
-    werte.update({xaml_satz(k): k for k in daten["satz"]})
-    themen = {"Light": "hell", "Default": "hell", "Dark": "dunkel"}
+             name("Fs.FocusThickness"): "fokus-staerke", name("Fs.FocusOffset"): "fokus-abstand"}
+    werte.update({name(f"Fs.Font.{pascal(k)}"): f"schrift-{k}" for k in daten["schrift"]})
+    werte.update({name(f"Fs.Groesse.{pascal(s['rolle'])}"): f"groesse-{s['rolle']}"
+                  for s in daten["groessen"]["stufen"]})
+    werte.update({name(f"Fs.Abstand.{a['stufe']}"): f"abstand-{a['stufe']}" for a in daten["abstaende"]})
+    werte.update({name(xaml_satz(k)): k for k in daten["satz"]})
+    if win:
+        farbe = re.compile(r"Fs([A-Z][A-Za-z]*?)(Color|Brush)")
+        verweis_muster = r"\{(?:Static|Dynamic|Theme)Resource\s+Fs([A-Z][A-Za-z]*?)(?:Color|Brush)\s*\}"
+        themen = {"Light": "hell", "Dark": "dunkel", "Default": "dunkel", "HighContrast": "kontrast"}
+        praefix = "Fs"
+    else:
+        farbe = re.compile(r"Fs\.([A-Za-z]+)(\.Color)?")
+        verweis_muster = r"\{(?:Static|Dynamic|Theme)Resource\s+Fs\.([A-Za-z]+)(?:\.Color)?\s*\}"
+        themen = {"Light": "hell", "Default": "hell", "Dark": "dunkel"}
+        praefix = "Fs."
     eintraege, unbekannt = [], []
     for e in xaml_elemente(text):
         k = e["schluessel"]
@@ -933,30 +1087,49 @@ def avalonia_lesen(daten: dict, text: str) -> Gelesen:
             continue
         if not k:
             continue
-        wert = e["attrs"].get("Color", "") if e["lokal"] == "SolidColorBrush" else e["text"]
+        if e["lokal"] == "SolidColorBrush":
+            wert = e["attrs"].get("Color", "")
+        elif e["lokal"] == "StaticResource":
+            wert = e["attrs"].get("ResourceKey", "")
+        else:
+            wert = e["text"]
+        # Ein Eintrag außerhalb der Themenwörterbücher gilt in jedem Thema: Avalonia und WinUI suchen
+        # im Wörterbuch selbst, bevor sie in ThemeDictionaries schauen (bei WinUI zählen diese wie
+        # eingebundene Wörterbücher). Ein unbekanntes Themenwörterbuch steht schon unter unbekannt.
+        if e["thema"] is None:
+            gilt_fuer = [*THEMEN, "kontrast"] if win else list(THEMEN)
+        else:
+            gilt_fuer = [themen[e["thema"]]] if e["thema"] in themen else []
         if k in werte:
             eintraege.append(Eintrag(werte[k], "", wert, e["zeile"]))
             continue
-        m = re.fullmatch(r"Fs\.([A-Za-z]+)(\.Color)?", k)
+        if win and k in AKZENTSTUFEN:
+            if any(t in THEMEN for t in gilt_fuer):
+                eintraege.append(Eintrag(f"akzent-{k}", "", wert, e["zeile"]))
+            continue
+        m = farbe.fullmatch(k)
         if not m or m.group(1) not in rolle_von:
-            if k.startswith("Fs."):
+            if k.startswith(praefix):
                 unbekannt.append((k, e["zeile"]))
             continue
-        # Ein Eintrag außerhalb der Themenwörterbücher gilt in jedem Thema: Avalonia sucht im
-        # Wörterbuch selbst, bevor es in ThemeDictionaries schaut (ResourceDictionary.TryGetResource).
-        if e["thema"] is None:
-            gilt_fuer = list(THEMEN)
-        elif themen.get(e["thema"]) is not None:
-            gilt_fuer = [themen[e["thema"]]]
-        else:
-            continue
-        ref = re.fullmatch(r"\{(?:Static|Dynamic|Theme)Resource\s+Fs\.([A-Za-z]+)(?:\.Color)?\s*\}", wert)
+        rolle = rolle_von[m.group(1)]
+        ref = re.fullmatch(verweis_muster, wert)
         for thema in gilt_fuer:
-            verweis = None
-            if ref and rolle_von.get(ref.group(1)) in rollen:
-                verweis = (rolle_von[ref.group(1)], thema)
-            eintraege.append(Eintrag(rolle_von[m.group(1)], thema, wert, e["zeile"], verweis))
+            if thema == "kontrast":
+                system = re.fullmatch(r"\{ThemeResource\s+(\w+)\s*\}", wert)
+                eintraege.append(Eintrag(f"kontrast-{rolle}", "", system.group(1) if system else wert, e["zeile"]))
+                continue
+            verweis = (rolle_von[ref.group(1)], thema) if ref and ref.group(1) in rolle_von else None
+            eintraege.append(Eintrag(rolle, thema, wert, e["zeile"], verweis))
     return eintraege, unbekannt, []
+
+
+def avalonia_lesen(daten: dict, text: str) -> Gelesen:
+    return xaml_lesen(daten, text, "avalonia")
+
+
+def winui_lesen(daten: dict, text: str) -> Gelesen:
+    return xaml_lesen(daten, text, "winui")
 
 
 def wp_slug(slug: str) -> str:
@@ -1040,12 +1213,13 @@ def wordpress_lesen(daten: dict, text: str) -> Gelesen:
     return eintraege, unbekannt, []
 
 
-LESER = {"css": css_lesen, "scss": scss_lesen, "avalonia": avalonia_lesen, "wordpress": wordpress_lesen}
+LESER = {"css": css_lesen, "scss": scss_lesen, "avalonia": avalonia_lesen, "winui": winui_lesen,
+         "wordpress": wordpress_lesen}
 
 
 def soll_werte(daten: dict, fmt: str) -> dict[str, tuple[str, str]]:
     """Werte ohne Thema, die das Format trägt: Schlüssel -> (Soll, Vergleichsart)."""
-    xaml = fmt == "avalonia"
+    xaml = fmt in XAML_FORMATE
     form, satz = daten["form"], daten["satz"]
     w: dict[str, tuple[str, str]] = {}
     if fmt != "wordpress":
@@ -1066,6 +1240,9 @@ def soll_werte(daten: dict, fmt: str) -> dict[str, tuple[str, str]]:
     if fmt == "wordpress":
         fluessig = daten["groessen"]["fluessig"]
         w["fluessig"] = (f"{fluessig['von']} bis {fluessig['bis']}", "fluessig")
+    if fmt == "winui":
+        w.update({f"akzent-{stufe}": (farbe, "farbe") for stufe, farbe in akzentreihe(daten).items()})
+        w.update({f"kontrast-{rolle}": (system, "text") for rolle, system in daten["winui"]["hoher-kontrast"].items()})
     return w
 
 
@@ -1110,6 +1287,8 @@ def gleich(soll: str, ist: str, art: str, xaml: bool) -> bool:
             return rem(m.group(1)), rem(m.group(2)), rem(m.group(3) or "14px")
         a, b = teile(soll), teile(ist)
         return a is not None and a == b
+    if art == "farbe":
+        return farbe_normal(ist, xaml) is not None and farbe_normal(ist, xaml) == farbe_normal(soll, xaml)
     if art == "staerke":
         def stufe(x: str) -> int | None:
             x = einfach(x)
@@ -1142,7 +1321,7 @@ def abgleich(daten: dict, pfad: Path, fmt: str | None) -> tuple[str, list[Befund
         text = pfad.read_text(encoding="utf-8-sig")
     except (OSError, UnicodeDecodeError) as fehler:
         raise Unbrauchbar(f"nicht lesbar: {fehler}") from None
-    xaml = fmt == "avalonia"
+    xaml = fmt in XAML_FORMATE
     eintraege, unbekannt, unlesbar = LESER[fmt](daten, text)
     if not [e for e in eintraege if e.name != "fluessig"]:   # fluessig liest theme.json immer mit
         raise Unbrauchbar(f"keine Werte der Marke gefunden; ist das die Kopie, und stimmt das Format {fmt}?")
@@ -1209,7 +1388,7 @@ def abgleichen(argv: list[str]) -> int:
         prog="marke.py abgleichen",
         description="Vergleicht die Kopie eines Projekts mit den Tokens. Liest die Datei nur.")
     parser.add_argument("datei", type=Path)
-    parser.add_argument("--format", choices=FORMATE, help="sonst gilt die Endung (.css, .scss, .axaml, .json)")
+    parser.add_argument("--format", choices=FORMATE, help="sonst gilt die Endung (.css, .scss, .axaml, .xaml, .json)")
     parser.add_argument("--streng", action="store_true", help="fehlende Rollen und Werte sind Fehler")
     args = parser.parse_args(argv)
     daten = laden()
@@ -1599,6 +1778,7 @@ EIGENE_EXPORTE = {
     "exporte/firestrike.css": True,
     "exporte/_firestrike.scss": True,
     "exporte/avalonia/Firestrike.axaml": True,
+    "exporte/winui/Firestrike.xaml": True,
     "exporte/wordpress/firestrike.json": True,
     "exporte/anmeldeseite.css": True,
     "exporte/wordpress/farben.css": False,
@@ -1698,6 +1878,10 @@ def pruefen() -> int:
             if k < mindestens:
                 fehler.append(f"Kontrast {t}: {vorne} auf {hinten} = {zahl(k)}:1, "
                               f"braucht {grenze(mindestens)}:1 ({fuer})")
+    for t, (vn, vw), (hn, hw), zweck in winui_paare(daten):
+        anzahl += 1
+        if kontrast(vw, hw) < 4.5:
+            fehler.append(f"WinUI {t}: {vn} {vw} auf {hn} {hw} = {zahl(kontrast(vw, hw))}:1, braucht 4,5:1 ({zweck})")
     dateien = erzeugte(daten)
     for pfad, inhalt in dateien.items():
         ziel = WURZEL / pfad

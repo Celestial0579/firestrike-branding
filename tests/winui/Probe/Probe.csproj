@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Prüft, ob exporte/winui/Firestrike.xaml in einer WinUI-3-App lädt und was jeder Schlüssel
+       im hellen, dunklen und hohen Kontrast ergibt. Wird nur in der CI gebaut, nie ausgeliefert. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>FsProbe</RootNamespace>
+    <AssemblyName>FsProbe</AssemblyName>
+    <Platforms>x64</Platforms>
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <ProjectPriFileName>resources.pri</ProjectPriFileName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.Foundation" Version="2.3.12" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.1.9" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2957" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="..\..\..\exporte\winui\Firestrike.xaml" Link="Themes\Firestrike.xaml" />
+  </ItemGroup>
+</Project>

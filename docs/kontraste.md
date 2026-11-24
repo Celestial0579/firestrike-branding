@@ -35,3 +35,39 @@ Diese Paare liegen mindestens in einem Thema unter 4,5:1. Sie tragen darum nie T
 |---|---|---:|---:|---|
 | Funke | Grund | 1,88:1 | 9,90:1 | auf hellem Grund nur Linien und Marker, nie Text |
 | Linie | Fläche | 1,62:1 | 1,54:1 | nie die einzige Grenze eines Bedienelements |
+
+## WinUI-Akzentreihe
+
+Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). WinUI nimmt im hellen Thema Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und Light3 und Light2 für Verweise. Auf Akzentflächen schreibt WinUI weiß (hell) und schwarz (dunkel). Jedes Paar braucht 4,5:1.
+
+| Stufe | Farbe |
+|---|---|
+| SystemAccentColor | #A24C18 |
+| SystemAccentColorLight1 | #CF6028 |
+| SystemAccentColorLight2 | #DB7745 |
+| SystemAccentColorLight3 | #F2B558 |
+| SystemAccentColorDark1 | #A24C18 |
+| SystemAccentColorDark2 | #A24C18 |
+| SystemAccentColorDark3 | #7E3B13 |
+
+| Thema | Vorne | Hinten | Kontrast | Wofür |
+|---|---|---|---:|---|
+| hell | SystemAccentColorDark2 #A24C18 | Grund #EFF0ED | 5,12:1 | Verweis |
+| hell | SystemAccentColorDark2 #A24C18 | Fläche #FFFFFF | 5,86:1 | Verweis |
+| hell | SystemAccentColorDark2 #A24C18 | Fläche tief #E3E5E1 | 4,62:1 | Verweis |
+| hell | SystemAccentColorDark3 #7E3B13 | Grund #EFF0ED | 7,27:1 | Verweis |
+| hell | SystemAccentColorDark3 #7E3B13 | Fläche #FFFFFF | 8,32:1 | Verweis |
+| hell | SystemAccentColorDark3 #7E3B13 | Fläche tief #E3E5E1 | 6,56:1 | Verweis |
+| hell | SystemAccentColorDark1 #A24C18 | Grund #EFF0ED | 5,12:1 | Verweis |
+| hell | SystemAccentColorDark1 #A24C18 | Fläche #FFFFFF | 5,86:1 | Verweis |
+| hell | SystemAccentColorDark1 #A24C18 | Fläche tief #E3E5E1 | 4,62:1 | Verweis |
+| hell | Schrift von WinUI #FFFFFF | SystemAccentColorDark1 #A24C18 | 5,86:1 | Schrift auf Akzentfläche |
+| hell | Fläche #FFFFFF | SystemAccentColorDark1 #A24C18 | 5,86:1 | Schrift auf Akzentfläche |
+| dunkel | SystemAccentColorLight3 #F2B558 | Grund #141715 | 9,90:1 | Verweis |
+| dunkel | SystemAccentColorLight3 #F2B558 | Fläche #1C201D | 9,04:1 | Verweis |
+| dunkel | SystemAccentColorLight3 #F2B558 | Fläche tief #262B27 | 7,90:1 | Verweis |
+| dunkel | SystemAccentColorLight2 #DB7745 | Grund #141715 | 5,79:1 | Verweis |
+| dunkel | SystemAccentColorLight2 #DB7745 | Fläche #1C201D | 5,28:1 | Verweis |
+| dunkel | SystemAccentColorLight2 #DB7745 | Fläche tief #262B27 | 4,62:1 | Verweis |
+| dunkel | Schrift von WinUI #000000 | SystemAccentColorLight2 #DB7745 | 6,73:1 | Schrift auf Akzentfläche |
+| dunkel | Fläche #1C201D | SystemAccentColorLight2 #DB7745 | 5,28:1 | Schrift auf Akzentfläche |

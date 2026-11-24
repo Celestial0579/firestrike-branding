@@ -28,6 +28,7 @@ Feuerstein schlägt auf Stahl, ein Funke springt. Daher ein kühler Stahlgrund u
 | Sass | `exporte/_firestrike.scss` | `$fs-glut`, `$fs-glut-dunkel`, `$fs-groesse-gross`, Maps `$fs-hell`, `$fs-dunkel`, `$fs-groessen` und `$fs-abstaende` |
 | WordPress | `exporte/wordpress/firestrike.json`, `exporte/wordpress/farben.css` | Palette, Schriften, Größen und Abstände für theme.json, dunkles Thema für style.css |
 | Avalonia | `exporte/avalonia/Firestrike.axaml` | `Fs.Grund`, `Fs.Grund.Color` …, `Fs.Groesse.Gross`, `Fs.Abstand.30` … |
+| WinUI 3 | `exporte/winui/Firestrike.xaml` | `FsGrundBrush`, `FsGrundColor` …, Akzentreihe `SystemAccentColor` bis `SystemAccentColorDark3`, Wörterbuch `HighContrast`, `FsGroesseGross` … |
 | Anmeldeseite (PatternFly) | `exporte/anmeldeseite.css` | eigenes CSS der Anmeldeseite |
 | Rasterbilder | `exporte/raster/` | Favicon (`favicon.ico` mit 16, 32 und 48 px, `favicon-32.png`), WordPress-Site-Icon (`site-icon-512.png`), Apple-Touch-Icon (`apple-touch-icon-180.png`), Profilbild (`profilbild-400.png`), Windows (`app.ico` mit 16 bis 256 px, `msix/` mit den Größen für MSIX) |
 
@@ -35,7 +36,7 @@ Schriftgrößen, Abstände und Zeilenhöhen stehen in [docs/masse.md](docs/masse
 
 Im Web folgt Dunkel der Einstellung des Geräts. `data-theme="light"` oder `data-theme="dark"` am `<html>` legt das Thema fest. Jede Datei nennt im Kopf ihre Quelle und Version. Bitte kopierte Dateien nicht anpassen, sondern bei einer neuen Version ganz ersetzen.
 
-Ein Export für WinUI 3 folgt. Er braucht eine eigene Akzentreihe und ein Wörterbuch für den Modus Hoher Kontrast.
+WinUI 3 bekommt zusätzlich eine Akzentreihe aus Glut und Funke. WinUI nimmt im hellen Thema Dark1 für Akzentflächen und Dark2 für Verweise, im dunklen Thema Light2 und Light3; die Prüfung hält jedes dieser Paare bei mindestens 4,5:1 ([docs/kontraste.md](docs/kontraste.md#winui-akzentreihe)). Im Modus Hoher Kontrast zeigt jede Rolle auf eine Systemfarbe, die Akzentreihe bleibt dort die des Systems. Die Datei gehört in App.xaml nach `XamlControlsResources`.
 
 ## Ändern
 
@@ -62,11 +63,11 @@ Projekte, die Werte von hier übernehmen, prüfen in ihrer CI, ob ihre Kopie noc
 python3 werkzeuge/marke.py abgleichen DATEI [--format FORMAT] [--streng]
 ```
 
-- Das Format folgt aus der Endung: `.css`, `.scss`, `.axaml` (Avalonia) und `.json` (WordPress, `theme.json`). Sonst `--format css`, `scss`, `avalonia` oder `wordpress`.
-- Verglichen wird jede Rolle in beiden Themen, die die Datei nennt. Dazu kommen Radius, Fokusrahmen, Schriften, Größen, Abstände und Satz, soweit das Format sie trägt. Groß- und Kleinschreibung zählen nicht, `#fff` ist `#FFFFFF`. Verweise wie `var(--fs-glut)`, `$fs-glut` oder `{StaticResource Fs.Glut.Color}` werden aufgelöst.
+- Das Format folgt aus der Endung: `.css`, `.scss`, `.axaml` (Avalonia), `.xaml` (WinUI 3) und `.json` (WordPress, `theme.json`). Sonst `--format css`, `scss`, `avalonia`, `winui` oder `wordpress`.
+- Verglichen wird jede Rolle in beiden Themen, die die Datei nennt. Dazu kommen Radius, Fokusrahmen, Schriften, Größen, Abstände und Satz, soweit das Format sie trägt. Groß- und Kleinschreibung zählen nicht, `#fff` ist `#FFFFFF`. Verweise wie `var(--fs-glut)`, `$fs-glut`, `{StaticResource Fs.Glut.Color}` oder `{ThemeResource FsGlutColor}` werden aufgelöst.
 - CSS: Hell steht im Grundblock, dunkel unter `@media (prefers-color-scheme: dark)` und unter `[data-theme="dark"]`; `@media not …` kehrt das um. Neben `--fs-<rolle>` zählt auch `--wp--preset--color--<rolle>`, damit auch das `style.css` eines WordPress-Themes prüfbar ist. Escapes im Namen und Zeichenketten lesen sich wie im Browser.
 - Sass: `$fs_glut` ist `$fs-glut`, und `"glut"` als Map-Schlüssel ist `glut`. `$fs-hell` und `$fs-dunkel` müssen als Map stehen; `map.merge()` und Ähnliches lässt sich nicht auswerten und ist ein Fehler.
-- Avalonia: Ein Wert außerhalb der Themenwörterbücher gilt in beiden Themen, denn Avalonia sucht dort zuerst.
+- Avalonia und WinUI: Ein Wert außerhalb der Themenwörterbücher gilt in jedem Thema, denn beide suchen dort zuerst. Bei WinUI zählen auch die Akzentreihe und die Systemfarben im Wörterbuch `HighContrast`.
 - WordPress: Slugs zählen so, wie WordPress sie zur CSS-Variable macht (`Glut` ist `glut`, `flaecheTief` ist `flaeche-tief`), und der letzte Eintrag gewinnt. Verglichen werden auch die Fensterbreiten der fließenden Größen (`settings.typography.fluid`, ohne eigene Angabe `layout.wideSize` oder 1600px) und ein abweichendes `minFontSize`.
 - Jede Abweichung steht mit Rolle, Thema, Soll, Ist und Zeile in der Ausgabe, der Exit-Code ist dann 1. Die alten Glutwerte `#AB5019` und `#D9713C` nennt die Ausgabe überall, wo sie in der Datei stehen; auch das ist ein Fehler.
 - Was fehlt, ist ein Hinweis, mit `--streng` ein Fehler. Unbekannte Namen wie `--fs-orange` sind Hinweise.
