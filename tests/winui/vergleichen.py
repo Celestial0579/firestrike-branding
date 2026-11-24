@@ -53,8 +53,13 @@ for name, thema in (("hell", "hell"), ("dunkel", "dunkel")):
     nutzung = marke.WINUI_NUTZUNG[thema]
     soll(name, ist, "AccentFillColorDefaultBrush", argb(reihe[nutzung["flaeche"]]))
     soll(name, ist, "AccentTextFillColorPrimaryBrush", argb(reihe[nutzung["text"][0]]))
-    soll(name, ist, "ControlCornerRadius", daten["form"]["radius"])
+    # CornerRadius und Thickness schreibt die Probe nur mit einer Ecke bzw. Seite (TopLeft, Left).
+    for k in ("ControlCornerRadius", "OverlayCornerRadius"):
+        soll(name, ist, k, daten["form"]["radius"])
     soll(name, ist, "FsFocusThickness", marke.ohne_px(daten["form"]["fokus-staerke"]))
+    soll(name, ist, "FsFocusOffset", marke.ohne_px(daten["form"]["fokus-abstand"]))
+    soll(name, ist, "FsZeilenhoeheText", daten["satz"]["zeilenhoehe-text"])
+    soll(name, ist, "FsZeilenhoeheUeberschrift", daten["satz"]["zeilenhoehe-ueberschrift"])
     for k, v in daten["schrift"].items():
         soll(name, ist, f"FsFont{marke.pascal(k)}", v["xaml"])
     for s in daten["groessen"]["stufen"]:
