@@ -147,6 +147,19 @@
       "abweichung glut hell"
     ]
   },
+  "css-hell-ausdruecklich-falsch.css": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung glut hell",
+      "abweichung glut hell"
+    ]
+  },
+  "css-hell-ausdruecklich.css": {
+    "exit": 0,
+    "exit_streng": 0,
+    "befunde": []
+  },
   "css-knapp-daneben.css": {
     "exit": 1,
     "exit_streng": 1,
@@ -326,10 +339,30 @@
       "unlesbar $fs-hell"
     ]
   },
+  "scss-map-unterstrich.scss": {
+    "exit": 0,
+    "exit_streng": 0,
+    "befunde": []
+  },
   "scss-passt.scss": {
     "exit": 0,
     "exit_streng": 0,
     "befunde": []
+  },
+  "scss-teil-map.scss": {
+    "exit": 0,
+    "exit_streng": 1,
+    "befunde": [
+      "fehlt flaeche dunkel",
+      "fehlt flaeche-tief dunkel",
+      "fehlt funke dunkel",
+      "fehlt grund dunkel",
+      "fehlt linie dunkel",
+      "fehlt stahl dunkel",
+      "fehlt stahl-tief dunkel",
+      "fehlt text dunkel",
+      "fehlt text-leise dunkel"
+    ]
   },
   "scss-unterstrich.scss": {
     "exit": 1,
@@ -337,6 +370,11 @@
     "befunde": [
       "abweichung glut hell"
     ]
+  },
+  "scss-verweis-unterstrich.scss": {
+    "exit": 0,
+    "exit_streng": 0,
+    "befunde": []
   },
   "scss-weicht-ab.scss": {
     "exit": 1,
@@ -353,7 +391,22 @@
       "unbekannt $fs-akzent"
     ]
   },
+  "scss-zeichenkette.scss": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fokus hell",
+      "abweichung fokus hell",
+      "abweichung glut hell",
+      "abweichung glut hell"
+    ]
+  },
   "unbrauchbar-doctype.axaml": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-endung.txt": {
     "exit": 2,
     "exit_streng": 2,
     "befunde": null
@@ -368,12 +421,27 @@
     "exit_streng": 2,
     "befunde": null
   },
+  "unbrauchbar-json-abgebrochen.json": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
   "unbrauchbar-kaputt.axaml": {
     "exit": 2,
     "exit_streng": 2,
     "befunde": null
   },
+  "unbrauchbar-latin1.css": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
   "unbrauchbar-liste.json": {
+    "exit": 2,
+    "exit_streng": 2,
+    "befunde": null
+  },
+  "unbrauchbar-nur-doctype.axaml": {
     "exit": 2,
     "exit_streng": 2,
     "befunde": null
@@ -493,6 +561,25 @@
     "befunde": [
       "abweichung fluessig"
     ]
+  },
+  "wordpress-fluid-min-abweichend.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fluessig"
+    ]
+  },
+  "wordpress-fluid-ohne-breiten.json": {
+    "exit": 1,
+    "exit_streng": 1,
+    "befunde": [
+      "abweichung fluessig"
+    ]
+  },
+  "wordpress-fluid-wide-size.json": {
+    "exit": 0,
+    "exit_streng": 0,
+    "befunde": []
   },
   "wordpress-minfontsize.json": {
     "exit": 1,
