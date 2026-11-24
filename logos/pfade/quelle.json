@@ -1,9 +1,0 @@
-{
-  "schrift": "Liberation Sans Bold, Version 2.1.5",
-  "lizenz": "Licensed under the SIL Open Font License, Version 1.1",
-  "schrift_sha256": "b72c65e551d653b54217ffad0d1454ce0657e4e8d4a28bcc79e0acd2598f4bf3",
-  "quellen": {
-    "logos/firestrike-logo-light.svg": "4ff01189d6e906be6a713edc6c15c746791963a0010cfde767836df4c2c54722",
-    "logos/firestrike-logo-dark.svg": "2e7e705abb71d30ff27f819c74c00be89df499fd62098417a42ba634e445293c"
-  }
-}
