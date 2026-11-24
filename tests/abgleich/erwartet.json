@@ -404,52 +404,62 @@
   "unbrauchbar-doctype.axaml": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "DOCTYPE und ENTITY sind in XAML nicht erlaubt"
   },
   "unbrauchbar-endung.txt": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "Format unbekannt"
   },
   "unbrauchbar-entity.axaml": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "kein gültiges XML: undefined entity"
   },
   "unbrauchbar-grosse-zahl.json": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "JSON lässt sich nicht lesen: ValueError"
   },
   "unbrauchbar-json-abgebrochen.json": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "kein gültiges JSON"
   },
   "unbrauchbar-kaputt.axaml": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "kein gültiges XML: no element found"
   },
   "unbrauchbar-latin1.css": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "nicht lesbar: 'utf-8' codec"
   },
   "unbrauchbar-liste.json": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "theme.json muss ein Objekt sein"
   },
   "unbrauchbar-nur-doctype.axaml": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "DOCTYPE und ENTITY sind in XAML nicht erlaubt"
   },
   "unbrauchbar-ohne-marke.css": {
     "exit": 2,
     "exit_streng": 2,
-    "befunde": null
+    "befunde": null,
+    "grund": "keine Werte der Marke gefunden"
   },
   "winui-akzent-nur-hell.xaml": {
     "exit": 0,
