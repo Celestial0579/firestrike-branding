@@ -1085,7 +1085,11 @@ def xaml_lesen(daten: dict, text: str, fmt: str) -> Gelesen:
         themen = {"Light": "hell", "Default": "hell", "Dark": "dunkel"}
         praefix = "Fs."
     eintraege, unbekannt = [], []
-    for e in xaml_elemente(text):
+    elemente = xaml_elemente(text)
+    # Avalonia: Light und Dark erben von Default. Ein Schlüssel aus Default gilt in jedem Thema, dessen eigenes
+    # Wörterbuch ihn nicht setzt, und nur, solange er nicht außerhalb der Themenwörterbücher steht (#12).
+    gesetzt = {(e["thema"], e["schluessel"]) for e in elemente if e["schluessel"] and not e["themenwoerterbuch"]}
+    for e in elemente:
         k = e["schluessel"]
         if e["themenwoerterbuch"]:
             if k not in themen:
@@ -1104,6 +1108,9 @@ def xaml_lesen(daten: dict, text: str, fmt: str) -> Gelesen:
         # eingebundene Wörterbücher). Ein unbekanntes Themenwörterbuch steht schon unter unbekannt.
         if e["thema"] is None:
             gilt_fuer = [*THEMEN, "kontrast"] if win else list(THEMEN)
+        elif not win and e["thema"] == "Default":
+            gilt_fuer = [] if (None, k) in gesetzt else \
+                [t for t, eigen in (("hell", "Light"), ("dunkel", "Dark")) if (eigen, k) not in gesetzt]
         else:
             gilt_fuer = [themen[e["thema"]]] if e["thema"] in themen else []
         if k in werte:
