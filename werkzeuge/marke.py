@@ -1456,6 +1456,11 @@ RASTERBILDER: dict[str, tuple[str, tuple[tuple[int, int], ...]]] = {
     "app.ico": (SYMBOL, tuple((g, g) for g in (16, 20, 24, 32, 40, 48, 64, 256))),
     **{f"msix/Square44x44Logo.scale-{s}.png": (SYMBOL, ((44 * s // 100, 44 * s // 100),)) for s in (100, 200)},
     **{f"msix/Square44x44Logo.targetsize-{g}.png": (SYMBOL, ((g, g),)) for g in (16, 24, 32, 48, 256)},
+    # Ohne Platte (#10): Fehlt diese Variante, setzt Windows das Symbol in Taskleiste und Startmenü auf eine Platte in
+    # der Hintergrundfarbe aus dem Manifest, kleiner als andere Apps. Das Symbol trägt seine eigene Fläche und füllt das
+    # Bild schon ganz aus; die Variante ist dasselbe Bild unter dem Namen, an dem Windows das erkennt. Für das helle
+    # Thema der Taskleiste nimmt Windows sie ebenfalls, solange es kein altform-lightunplated gibt.
+    **{f"msix/Square44x44Logo.targetsize-{g}_altform-unplated.png": (SYMBOL, ((g, g),)) for g in (16, 24, 32, 48, 256)},
     **{f"msix/Square150x150Logo.scale-{s}.png": (SYMBOL, ((150 * s // 100, 150 * s // 100),)) for s in (100, 200)},
     **{f"msix/StoreLogo.scale-{s}.png": (SYMBOL, ((50 * s // 100, 50 * s // 100),)) for s in (100, 200)},
     **{f"msix/Wide310x150Logo.scale-{s}.png": (SYMBOL, ((310 * s // 100, 150 * s // 100),)) for s in (100, 200)},

@@ -101,6 +101,41 @@
         "256x256"
       ]
     },
+    "msix/Square44x44Logo.targetsize-16_altform-unplated.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "16x16"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-24_altform-unplated.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "24x24"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-32_altform-unplated.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "32x32"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-48_altform-unplated.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "48x48"
+      ]
+    },
+    "msix/Square44x44Logo.targetsize-256_altform-unplated.png": {
+      "quelle": "logos/firestrike-symbol.svg",
+      "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
+      "groessen": [
+        "256x256"
+      ]
+    },
     "msix/Square150x150Logo.scale-100.png": {
       "quelle": "logos/firestrike-symbol.svg",
       "quelle_sha256": "9ec64902eb86089bf299764df3bc5cd24b91e8e741f9f3262801f33235d17226",
