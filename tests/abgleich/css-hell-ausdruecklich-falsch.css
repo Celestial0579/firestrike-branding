@@ -1,0 +1,74 @@
+/* Unter @media (prefers-color-scheme: light) und [data-theme="light"] steht die dunkle Glut:
+   beides gilt als helles Thema und weicht ab. */
+:root {
+  --fs-grund: #eff0ed;
+  --fs-flaeche: #fff;
+  --fs-flaeche-tief: #E3E5E1;
+  --fs-linie: #c9ccc6;
+  --fs-text: #1b1e1c;
+  --fs-text-leise: #5a605b;
+  --fs-stahl: #33414b;
+  --fs-stahl-tief: #212b33;
+  --fs-funke: #e8a33d;
+  --fs-glut: #a24c18;
+  --fs-fokus: var(--fs-glut);
+  --fs-radius: 0px;
+  --fs-fokus-staerke: 2px;
+  --fs-fokus-abstand: 2px;
+  --fs-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --fs-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fs-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, monospace;
+  --fs-groesse-klein: 0.875rem;
+  --fs-groesse-normal: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.427), 1.0625rem);
+  --fs-groesse-gross: clamp(1.3rem, 1.3rem + ((1vw - 0.2rem) * 0.682), 1.6rem);
+  --fs-groesse-sehr-gross: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 1.818), 2.6rem);
+  --fs-groesse-titel: clamp(2.2rem, 2.2rem + ((1vw - 0.2rem) * 2.727), 3.4rem);
+  --fs-abstand-10: 0.35rem;
+  --fs-abstand-20: 0.7rem;
+  --fs-abstand-30: 1.1rem;
+  --fs-abstand-40: 1.7rem;
+  --fs-abstand-50: 2.6rem;
+  --fs-abstand-60: 4rem;
+  --fs-abstand-70: 6rem;
+  --fs-zeilenhoehe-text: 1.65;
+  --fs-zeilenhoehe-ueberschrift: 1.2;
+  --fs-staerke-ueberschrift: 600;
+}
+
+body { background: var(--fs-grund); color: var(--fs-text); font: 1rem/var(--fs-zeilenhoehe-text) var(--fs-sans); }
+a:hover { color: var(--fs-stahl); }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --fs-grund: #141715;
+    --fs-flaeche: #1c201d;
+    --fs-flaeche-tief: #262b27;
+    --fs-linie: #38403a;
+    --fs-text: #e8ebe7;
+    --fs-text-leise: #a5ada6;
+    --fs-stahl: #7e93a1;
+    --fs-stahl-tief: #b4c6d1;
+    --fs-funke: #f2b558;
+    --fs-glut: #db7745;
+    --fs-fokus: #F2B558;
+  }
+}
+
+html[data-theme=dark] {
+  --fs-grund: #141715;
+  --fs-flaeche: #1c201d;
+  --fs-flaeche-tief: #262b27;
+  --fs-linie: #38403a;
+  --fs-text: #e8ebe7;
+  --fs-text-leise: #a5ada6;
+  --fs-stahl: #7e93a1;
+  --fs-stahl-tief: #b4c6d1;
+  --fs-funke: #f2b558;
+  --fs-glut: #db7745;
+  --fs-fokus: var(--fs-funke);
+}
+
+@media (prefers-color-scheme: light) {
+  :root { --fs-glut: #db7745; }
+}
+[data-theme="light"] { --fs-glut: #db7745; }

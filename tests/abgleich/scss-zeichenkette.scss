@@ -1,0 +1,59 @@
+// Glut als Zeichenkette in Anführungszeichen: Sass gibt sie mit den Anführungszeichen aus,
+// das ist keine Farbe.
+
+$fs-grund: #eff0ed !default;
+$fs-flaeche: #ffffff !default;
+$fs-flaeche-tief: #e3e5e1 !default;
+$fs-linie: #c9ccc6 !default;
+$fs-text: #1b1e1c !default;
+$fs-text-leise: #5a605b !default;
+$fs-stahl: #33414b !default;
+$fs-stahl-tief: #212b33 !default;
+$fs-funke: #e8a33d !default;
+$fs-glut: "#a24c18" !default;
+$fs-fokus: $fs-glut !default; /* Fokus hell wie Glut */
+
+$fs-grund-dunkel: #141715;
+$fs-flaeche-dunkel: #1c201d;
+$fs-flaeche-tief-dunkel: #262b27;
+$fs-linie-dunkel: #38403a;
+$fs-text-dunkel: #e8ebe7;
+$fs-text-leise-dunkel: #a5ada6;
+$fs-stahl-dunkel: #7e93a1;
+$fs-stahl-tief-dunkel: #b4c6d1;
+$fs-funke-dunkel: #f2b558;
+$fs-glut-dunkel: #db7745;
+$fs-fokus-dunkel: $fs-funke-dunkel;
+
+$fs-hell: (
+  grund: $fs-grund,
+  glut: $fs-glut,
+  fokus: $fs-fokus,
+);
+$fs-dunkel: (glut: $fs-glut-dunkel, fokus: #f2b558);
+
+$fs-radius: 0;
+$fs-fokus-staerke: 2px;
+$fs-fokus-abstand: 2px;
+$fs-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino,
+  'Book Antiqua', Georgia, serif;
+$fs-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$fs-mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Menlo, Consolas, monospace;
+$fs-groesse-klein: 0.875rem;
+$fs-groesse-normal: clamp(0.875rem, 0.875rem + ((1vw - 0.2rem) * 0.427), 1.0625rem);
+$fs-groesse-gross: clamp(1.3rem, 1.3rem + ((1vw - 0.2rem) * 0.682), 1.6rem);
+$fs-groesse-sehr-gross: clamp(1.8rem, 1.8rem + ((1vw - 0.2rem) * 1.818), 2.6rem);
+$fs-groesse-titel: clamp(2.2rem, 2.2rem + ((1vw - 0.2rem) * 2.727), 3.4rem);
+$fs-abstand-10: 0.35rem;
+$fs-abstand-20: 0.7rem;
+$fs-abstand-30: 1.1rem;
+$fs-abstand-40: 1.7rem;
+$fs-abstand-50: 2.6rem;
+$fs-abstand-60: 4rem;
+$fs-abstand-70: 6rem;
+$fs-zeilenhoehe-text: 1.65;
+$fs-zeilenhoehe-ueberschrift: 1.2;
+$fs-staerke-ueberschrift: 600;
+$fs-groessen: (klein: $fs-groesse-klein);
+
+.knopf { background: $fs-stahl; &:hover { background: $fs-glut; } }
