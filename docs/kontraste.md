@@ -38,7 +38,7 @@ Diese Paare liegen mindestens in einem Thema unter 4,5:1. Sie tragen darum nie T
 
 ## WinUI-Akzentreihe
 
-Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). WinUI nimmt im hellen Thema Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und Light3 und Light2 für Verweise. Auf Akzentflächen schreibt WinUI weiß (hell) und schwarz (dunkel). Markierten Text schreibt es in beiden Themen weiß auf SystemAccentColor, auf der dritten AccentAA-Fläche im dunklen Thema (Light1) schwarz. Jedes Paar braucht 4,5:1.
+Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). WinUI nimmt im hellen Thema Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und Light3 und Light2 für Verweise. Auf Akzentflächen schreibt WinUI weiß (hell) und schwarz (dunkel). Markierten Text schreibt es in beiden Themen weiß auf SystemAccentColor. Auf die übrigen AccentAA-Flächen schreibt es weiß (hell: Dark2, SystemAccentColor) und schwarz (dunkel: Light3, Light1). Jedes Paar braucht 4,5:1.
 
 | Stufe | Farbe |
 |---|---|
@@ -64,6 +64,7 @@ Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). Win
 | hell | Schrift von WinUI #FFFFFF | SystemAccentColorDark1 #A24C18 | 5,86:1 | Schrift auf Akzentfläche |
 | hell | Fläche #FFFFFF | SystemAccentColorDark1 #A24C18 | 5,86:1 | Schrift auf Akzentfläche |
 | hell | Schrift von WinUI #FFFFFF | SystemAccentColor #A24C18 | 5,86:1 | markierter Text |
+| hell | Schrift von WinUI #FFFFFF | SystemAccentColorDark2 #A24C18 | 5,86:1 | Schrift auf AccentAA-Fläche |
 | dunkel | SystemAccentColorLight3 #F2B558 | Grund #141715 | 9,90:1 | Verweis |
 | dunkel | SystemAccentColorLight3 #F2B558 | Fläche #1C201D | 9,04:1 | Verweis |
 | dunkel | SystemAccentColorLight3 #F2B558 | Fläche tief #262B27 | 7,90:1 | Verweis |
@@ -73,4 +74,5 @@ Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). Win
 | dunkel | Schrift von WinUI #000000 | SystemAccentColorLight2 #DB7745 | 6,73:1 | Schrift auf Akzentfläche |
 | dunkel | Fläche #1C201D | SystemAccentColorLight2 #DB7745 | 5,28:1 | Schrift auf Akzentfläche |
 | dunkel | Schrift von WinUI #FFFFFF | SystemAccentColor #A24C18 | 5,86:1 | markierter Text |
+| dunkel | Schrift von WinUI #000000 | SystemAccentColorLight3 #F2B558 | 11,52:1 | Schrift auf AccentAA-Fläche |
 | dunkel | Schrift von WinUI #000000 | SystemAccentColorLight1 #CF6028 | 5,35:1 | Schrift auf AccentAA-Fläche |
