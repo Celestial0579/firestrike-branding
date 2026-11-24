@@ -9,5 +9,6 @@ Die einfarbigen Fassungen (`*-mono-*.svg`) erzeugt `werkzeuge/marke.py` aus den 
 Die Logos tragen die Wortmarke als Pfade, nicht als Text. Sie sehen darum auf jedem System gleich aus, und es wird keine Schrift gebraucht. Die Umrisse stammen aus Liberation Sans Bold (SIL Open Font License 1.1), die metrisch Arial entspricht. Laufweite 2,6, Stärke 700 und Lage sind dieselben wie in der früheren Text-Fassung.
 
 - Die Text-Fassungen liegen als Quelle unter [`quellen/`](quellen) (`*-text.svg`). Wer Laufweite oder Lage ändern will, ändert dort und erzeugt neu: `python3 werkzeuge/marke.py wortmarke LiberationSans-Bold.ttf`, danach `erzeugen` für die einfarbigen.
-- `quellen/quelle.json` nennt Schrift, Lizenz und die Prüfsummen der Text-Fassungen. Ändert sich eine davon, meldet `pruefen` die Logos als veraltet.
+- `quellen/quelle.json` nennt Schrift, Lizenz, die Prüfsummen der Text-Fassungen und die der erzeugten Logos. Ändert sich eine Text-Fassung, meldet `pruefen` die Logos als veraltet; ändert jemand ein Logo von Hand, meldet es das Logo als verändert.
+- Die Text-Fassungen unterscheiden sich nur in der Farbe. Weichen Text, Lage, Größe oder Laufweite zwischen hell und dunkel ab, meldet `pruefen` das, damit die Wortmarke in allen Logos dieselbe bleibt.
 - Gerendert decken sich Text- und Pfad-Fassung bis aufs Antialiasing (bei 1000 × 200 Pixeln höchstens 18 von 255 Abweichung).

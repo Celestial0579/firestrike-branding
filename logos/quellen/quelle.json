@@ -5,5 +5,9 @@
   "quellen": {
     "logos/quellen/firestrike-logo-light-text.svg": "4ff01189d6e906be6a713edc6c15c746791963a0010cfde767836df4c2c54722",
     "logos/quellen/firestrike-logo-dark-text.svg": "2e7e705abb71d30ff27f819c74c00be89df499fd62098417a42ba634e445293c"
+  },
+  "logos": {
+    "logos/firestrike-logo-light.svg": "fa9cbdae4685c58ad88817276cd99a1113250e8b11484e6f00e8bc354419d3ff",
+    "logos/firestrike-logo-dark.svg": "10a53cd6a69db9862edee39941786ddd0ac19c977f0fcb712d70383cc6d5edd8"
   }
 }
