@@ -182,12 +182,14 @@ WINUI_NUTZUNG = {
 # Weitere Schrift auf einer Stufe der Reihe (#16): (Schrift, Stufe, Zweck).
 # - Markierter Text: TextOnAccentFillColorSelectedText (#FFFFFF in beiden Themen) auf
 #   AccentFillColorSelectedTextBackground (SystemAccentColor), Common_themeresources_any.xaml.
-# - AccentAA im dunklen Thema, dritte Fläche: TextOnAccentAAFillColorPrimary (#000000) auf
-#   AccentAAFillColorTertiary (SystemAccentColorLight1), Deprecated_themeresources_any.xaml. Die übrigen AccentAA-Flächen
-#   (Light2, Light3 dunkel; Dark1, Dark2, SystemAccentColor hell) decken die Paare oben schon ab.
+# - Die AccentAA-Flächen (Deprecated_themeresources_any.xaml) mit TextOnAccentAAFillColorPrimary (#FFFFFF hell,
+#   #000000 dunkel): Default ist die Akzentfläche oben (Dark1, Light2), Secondary ist Dark2 bzw. Light3, Tertiary
+#   SystemAccentColor bzw. Light1. SystemAccentColor hell deckt das Paar mit dem markierten Text schon ab (#23).
 WINUI_WEITERE = {
-    "hell": (("#FFFFFF", "SystemAccentColor", "markierter Text"),),
+    "hell": (("#FFFFFF", "SystemAccentColor", "markierter Text"),
+             ("#FFFFFF", "SystemAccentColorDark2", "Schrift auf AccentAA-Fläche")),
     "dunkel": (("#FFFFFF", "SystemAccentColor", "markierter Text"),
+               ("#000000", "SystemAccentColorLight3", "Schrift auf AccentAA-Fläche"),
                ("#000000", "SystemAccentColorLight1", "Schrift auf AccentAA-Fläche")),
 }
 
@@ -672,8 +674,9 @@ def kontraste_md(daten: dict) -> str:
           "Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). WinUI nimmt im hellen Thema "
           "Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und "
           "Light3 und Light2 für Verweise. Auf Akzentflächen schreibt WinUI weiß (hell) und schwarz (dunkel). "
-          "Markierten Text schreibt es in beiden Themen weiß auf SystemAccentColor, auf der dritten AccentAA-Fläche "
-          "im dunklen Thema (Light1) schwarz. Jedes Paar braucht 4,5:1.", "",
+          "Markierten Text schreibt es in beiden Themen weiß auf SystemAccentColor. Auf die übrigen AccentAA-Flächen "
+          "schreibt es weiß (hell: Dark2, SystemAccentColor) und schwarz (dunkel: Light3, Light1). "
+          "Jedes Paar braucht 4,5:1.", "",
           "| Stufe | Farbe |", "|---|---|"]
     z += [f"| {stufe} | {farbe} |" for stufe, farbe in akzentreihe(daten).items()]
     z += ["", "| Thema | Vorne | Hinten | Kontrast | Wofür |", "|---|---|---|---:|---|"]
