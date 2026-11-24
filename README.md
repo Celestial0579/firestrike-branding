@@ -19,6 +19,7 @@ Feuerstein schlägt auf Stahl, ein Funke springt. Daher ein kühler Stahlgrund u
 | [`docs/`](docs) | Nutzungsregeln, Kontrasttabelle, Farbtafel, [Größen und Abstände](docs/masse.md) |
 | [`werkzeuge/marke.py`](werkzeuge/marke.py) | erzeugt die Exporte, prüft alles und gleicht Kopien in Projekten ab |
 | [`tests/abgleich/`](tests/abgleich) | Prüfdateien für den Abgleich, je Format eine passende und eine abweichende |
+| [`tests/werkzeug/`](tests/werkzeug) | Tests für `marke.py` selbst, etwa dass fehlende Logos als Befund erscheinen |
 
 ## Exporte
 
@@ -42,10 +43,10 @@ WinUI 3 bekommt zusätzlich eine Akzentreihe aus Glut und Funke. WinUI nimmt im 
 
 1. `tokens/firestrike.json`, ein Logo oder eine Vorlage anpassen.
 2. `python3 werkzeuge/marke.py erzeugen`, nach einer Änderung am Symbol auch `python3 werkzeuge/marke.py raster` (braucht `rsvg-convert` aus dem Paket librsvg2-bin)
-3. `python3 werkzeuge/marke.py pruefen`
+3. `python3 werkzeuge/marke.py pruefen`, nach einer Änderung an `marke.py` auch `python3 -m unittest discover -s tests/werkzeug`
 4. Pull Request stellen.
 
-Die Prüfung läuft auch bei jedem Push und Pull Request. Ein zweiter Job erzeugt dort die Rasterbilder mit `rsvg-convert` neu, damit der Befehl lauffähig bleibt. Die Prüfung schlägt fehl, wenn
+Die Prüfung läuft auch bei jedem Push und Pull Request, dazu die Tests unter `tests/werkzeug`. Ein zweiter Job erzeugt dort die Rasterbilder mit `rsvg-convert` neu, damit der Befehl lauffähig bleibt. Die Prüfung schlägt fehl, wenn
 
 - ein Kontrastpaar in einem der beiden Themen unter seinem Mindestwert liegt (Text 4,5:1, Fokusrahmen 3:1, siehe [docs/kontraste.md](docs/kontraste.md)),
 - eine erzeugte Datei nicht mehr zu den Tokens passt,

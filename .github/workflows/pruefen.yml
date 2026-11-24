@@ -24,6 +24,8 @@ jobs:
           persist-credentials: false
       - name: Tokens, Kontraste, erzeugte Dateien und SVGs prüfen
         run: python3 werkzeuge/marke.py pruefen
+      - name: Tests für marke.py
+        run: python3 -m unittest discover -s tests/werkzeug -v
 
   raster:
     name: Rasterbilder neu erzeugen
