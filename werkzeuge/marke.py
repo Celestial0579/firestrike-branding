@@ -1902,11 +1902,11 @@ EIGENE_EXPORTE = {
 ABGLEICH_TESTS = "tests/abgleich/erwartet.json"
 
 
-def cli(pfad: Path, *optionen: str) -> int:
-    """Exit-Code von `marke.py abgleichen` als eigener Prozess, so wie ein Projekt es aufruft."""
+def cli(pfad: Path, *optionen: str) -> tuple[int, str]:
+    """Exit-Code und Ausgabe von `marke.py abgleichen` als eigener Prozess, so wie ein Projekt es aufruft."""
     lauf = subprocess.run([sys.executable, str(WURZEL / "werkzeuge" / "marke.py"), "abgleichen", str(pfad), *optionen],
                           capture_output=True, text=True, timeout=120)
-    return lauf.returncode
+    return lauf.returncode, lauf.stdout + lauf.stderr
 
 
 def abgleich_pruefen(daten: dict) -> tuple[list[str], int]:
@@ -1928,15 +1928,23 @@ def abgleich_pruefen(daten: dict) -> tuple[list[str], int]:
         for name, inhalt in erzeugt.items():
             (Path(tmp) / name).parent.mkdir(exist_ok=True)
             (Path(tmp) / name).write_text(inhalt, encoding="utf-8")
-            tests[name] = {"exit": 2, "exit_streng": 2, "befunde": None}
+        grund = {"erzeugt/zu-gross.css": "größer als 2 MB", "erzeugt/zu-tief.json": "JSON lässt sich nicht lesen"}
+        for name in erzeugt:
+            tests[name] = {"exit": 2, "exit_streng": 2, "befunde": None, "grund": grund[name]}
         for name, erwartet in tests.items():
             pfad = (Path(tmp) if name in erzeugt else WURZEL / "tests" / "abgleich") / name
             anzahl += 1
+            # Eine unbrauchbare Datei muss aus ihrem eigenen Grund abgelehnt werden, nicht aus irgendeinem (#30).
+            grund = erwartet.get("grund")
+            if erwartet["befunde"] is None and not grund:
+                fehler.append(f"Abgleichtest {name}: in {ABGLEICH_TESTS} fehlt das Stichwort \"grund\"")
             try:
                 _, befunde, _ = abgleich(daten, pfad, None)
             except Unbrauchbar as f:
                 if erwartet["befunde"] is not None:
                     fehler.append(f"Abgleichtest {name}: {f}")
+                elif grund and grund not in str(f):
+                    fehler.append(f"Abgleichtest {name}: abgelehnt mit „{f}“, erwartet „{grund}“")
                 befunde = None
             if erwartet["befunde"] is None and befunde is not None:
                 fehler.append(f"Abgleichtest {name}: hätte als unbrauchbar abgelehnt werden müssen")
@@ -1947,10 +1955,13 @@ def abgleich_pruefen(daten: dict) -> tuple[list[str], int]:
                     fehlen = sorted((soll - ist).elements())
                     fehler.append(f"Abgleichtest {name}: unerwartet {zu_viel or '-'}, nicht gefunden {fehlen or '-'}")
             for optionen, schluessel in (((), "exit"), (("--streng",), "exit_streng")):
-                rc = cli(pfad, *optionen)
+                rc, ausgabe = cli(pfad, *optionen)
                 if rc != erwartet[schluessel]:
                     fehler.append(f"Abgleichtest {name}{' --streng' if optionen else ''}: "
                                   f"Exit-Code {rc}, erwartet {erwartet[schluessel]}")
+                elif grund and grund not in ausgabe:
+                    fehler.append(f"Abgleichtest {name}{' --streng' if optionen else ''}: "
+                                  f"„{grund}“ fehlt in der Ausgabe des Befehls")
     return fehler, anzahl
 
 

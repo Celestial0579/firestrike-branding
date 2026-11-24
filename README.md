@@ -51,7 +51,7 @@ Die Prüfung läuft auch bei jedem Push und Pull Request, dazu die Tests unter `
 - ein Kontrastpaar in einem der beiden Themen unter seinem Mindestwert liegt (Text 4,5:1, Fokusrahmen 3:1, siehe [docs/kontraste.md](docs/kontraste.md)),
 - eine erzeugte Datei nicht mehr zu den Tokens passt,
 - ein Rasterbild nicht mehr zum Stand seines Quell-SVG passt oder andere Maße hat; die Prüfsummen der Quellen stehen in `exporte/raster/quellen.json`, die Bilddaten selbst vergleicht niemand,
-- `abgleichen` an einem eigenen Export eine Abweichung findet oder eine Prüfdatei unter `tests/abgleich/` nicht das Ergebnis aus `erwartet.json` liefert: dieselben Befunde und, als eigener Aufruf des Befehls, dieselben Exit-Codes mit und ohne `--streng` (bei neuen Tokenwerten die Prüfdateien mit anpassen),
+- `abgleichen` an einem eigenen Export eine Abweichung findet oder eine Prüfdatei unter `tests/abgleich/` nicht das Ergebnis aus `erwartet.json` liefert: dieselben Befunde und, als eigener Aufruf des Befehls, dieselben Exit-Codes mit und ohne `--streng`, bei unbrauchbaren Dateien auch derselbe Grund der Ablehnung (Stichwort `grund`) (bei neuen Tokenwerten die Prüfdateien mit anpassen),
 - ein SVG Skripte, Ereignis-Attribute, Verweise nach außen oder Farben außerhalb der Marke enthält oder `role="img"` und `aria-label` fehlen.
 
 Python 3.10 oder neuer genügt, weitere Pakete braucht es nicht.
