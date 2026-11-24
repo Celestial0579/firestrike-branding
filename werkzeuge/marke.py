@@ -179,6 +179,17 @@ WINUI_NUTZUNG = {
                "text": ("SystemAccentColorLight3", "SystemAccentColorLight2"),
                "schrift": "#000000"},
 }
+# Weitere Schrift auf einer Stufe der Reihe (#16): (Schrift, Stufe, Zweck).
+# - Markierter Text: TextOnAccentFillColorSelectedText (#FFFFFF in beiden Themen) auf
+#   AccentFillColorSelectedTextBackground (SystemAccentColor), Common_themeresources_any.xaml.
+# - AccentAA im dunklen Thema, dritte Fläche: TextOnAccentAAFillColorPrimary (#000000) auf
+#   AccentAAFillColorTertiary (SystemAccentColorLight1), Deprecated_themeresources_any.xaml. Die übrigen AccentAA-Flächen
+#   (Light2, Light3 dunkel; Dark1, Dark2, SystemAccentColor hell) decken die Paare oben schon ab.
+WINUI_WEITERE = {
+    "hell": (("#FFFFFF", "SystemAccentColor", "markierter Text"),),
+    "dunkel": (("#FFFFFF", "SystemAccentColor", "markierter Text"),
+               ("#000000", "SystemAccentColorLight1", "Schrift auf AccentAA-Fläche")),
+}
 
 
 def winui_pruefen(daten: dict, rollen: dict) -> list[str]:
@@ -224,6 +235,8 @@ def winui_paare(daten: dict):
         flaeche = (nutzung["flaeche"], reihe[nutzung["flaeche"]])
         yield t, ("Schrift von WinUI", nutzung["schrift"]), flaeche, "Schrift auf Akzentfläche"
         yield t, ("flaeche", wert[t]["flaeche"]), flaeche, "Schrift auf Akzentfläche"
+        for schrift, stufe, zweck in WINUI_WEITERE[t]:
+            yield t, ("Schrift von WinUI", schrift), (stufe, reihe[stufe]), zweck
 
 
 def leuchtdichte(farbe: str) -> float:
@@ -659,7 +672,8 @@ def kontraste_md(daten: dict) -> str:
           "Die Stufen entstehen aus Glut und Funke (`winui.akzentreihe` in den Tokens). WinUI nimmt im hellen Thema "
           "Dark1 für Akzentflächen und Dark2, Dark3 und Dark1 für Verweise, im dunklen Thema Light2 für Flächen und "
           "Light3 und Light2 für Verweise. Auf Akzentflächen schreibt WinUI weiß (hell) und schwarz (dunkel). "
-          "Jedes Paar braucht 4,5:1.", "",
+          "Markierten Text schreibt es in beiden Themen weiß auf SystemAccentColor, auf der dritten AccentAA-Fläche "
+          "im dunklen Thema (Light1) schwarz. Jedes Paar braucht 4,5:1.", "",
           "| Stufe | Farbe |", "|---|---|"]
     z += [f"| {stufe} | {farbe} |" for stufe, farbe in akzentreihe(daten).items()]
     z += ["", "| Thema | Vorne | Hinten | Kontrast | Wofür |", "|---|---|---|---:|---|"]
