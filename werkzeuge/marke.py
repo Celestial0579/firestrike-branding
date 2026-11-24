@@ -1742,6 +1742,15 @@ def pfad_text(konturen, x0: float, y0: float, s: float) -> str:
     return "".join(teile)
 
 
+def wortmarke_text(quelle: str) -> tuple[re.Match, dict[str, str]]:
+    """Das eine <text> einer Fassung mit Text und seine Attribute."""
+    text = (WURZEL / quelle).read_text(encoding="utf-8")
+    treffer = list(re.finditer(r"<text\b([^>]*)>([^<]*)</text>", text))
+    if len(treffer) != 1:
+        raise SystemExit(f"{quelle}: erwartet genau ein <text>")
+    return treffer[0], dict(re.findall(r'([a-z-]+)="([^"]*)"', treffer[0].group(1)))
+
+
 def wortmarke(argv: list[str]) -> int:
     if len(argv) != 1:
         print("Aufruf: python3 werkzeuge/marke.py wortmarke SCHRIFT.ttf (Liberation Sans Bold)", file=sys.stderr)
@@ -1754,13 +1763,10 @@ def wortmarke(argv: list[str]) -> int:
         print(f"{pfad}: {familie} {schnitt} ({kurz}); "
               f"erwartet {' '.join(WORTMARKE_SCHRIFT)} unter der SIL Open Font License", file=sys.stderr)
         return 2
-    quellen = {}
+    quellen, logos = {}, {}
     for ziel, quelle in PFAD_LOGOS.items():
         text = (WURZEL / quelle).read_text(encoding="utf-8")
-        treffer = list(re.finditer(r"<text\b([^>]*)>([^<]*)</text>", text))
-        if len(treffer) != 1:
-            raise SystemExit(f"{quelle}: erwartet genau ein <text>")
-        attrs = dict(re.findall(r'([a-z-]+)="([^"]*)"', treffer[0].group(1)))
+        treffer, attrs = wortmarke_text(quelle)
         if attrs.get("font-weight") != "700" or attrs.get("dominant-baseline") != "central":
             raise SystemExit(f"{quelle}: erwartet font-weight 700 und dominant-baseline central")
         groesse = float(attrs["font-size"])
@@ -1768,18 +1774,19 @@ def wortmarke(argv: list[str]) -> int:
         # dominant-baseline central: Mitte zwischen Ober- und Unterlänge aus hhea, wie Browser es rechnen
         grundlinie = float(attrs["y"]) + (schrift.oben + schrift.unten) / 2 * s
         x, teile = float(attrs["x"]), []
-        for zeichen in treffer[0].group(2):
+        for zeichen in treffer.group(2):
             g = schrift.glyphe(zeichen)
             teile.append(pfad_text(schrift.konturen(g), x, grundlinie, s))
             x += schrift.vorschub(g) * s + float(attrs.get("letter-spacing", "0"))
         element = f'<path d="{"".join(teile)}" fill="{attrs["fill"]}"/>'
-        neu = text[:treffer[0].start()] + element + text[treffer[0].end():]
+        neu = text[:treffer.start()] + element + text[treffer.end():]
         (WURZEL / ziel).parent.mkdir(parents=True, exist_ok=True)
         (WURZEL / ziel).write_text(neu, encoding="utf-8", newline="\n")
         print(f"geschrieben: {ziel}")
         quellen[quelle] = sha256(WURZEL / quelle)
+        logos[ziel] = sha256(WURZEL / ziel)
     liste = {"schrift": f"{familie} {schnitt}, {version}", "lizenz": lizenz,
-             "schrift_sha256": sha256(pfad), "quellen": quellen}
+             "schrift_sha256": sha256(pfad), "quellen": quellen, "logos": logos}
     (WURZEL / PFADE_QUELLE).write_text(json.dumps(liste, ensure_ascii=False, indent=2) + "\n",
                                       encoding="utf-8", newline="\n")
     print(f"geschrieben: {PFADE_QUELLE}; jetzt python3 werkzeuge/marke.py erzeugen für die einfarbigen")
@@ -1791,8 +1798,11 @@ def pfade_pruefen() -> list[str]:
     hinweis = WORTMARKE_HINWEIS
     if not (WURZEL / PFADE_QUELLE).is_file():
         return [f"fehlt: {PFADE_QUELLE}, {hinweis}"]
-    quellen = json.loads((WURZEL / PFADE_QUELLE).read_text(encoding="utf-8"))["quellen"]
+    liste = json.loads((WURZEL / PFADE_QUELLE).read_text(encoding="utf-8"))
+    quellen, logos = liste["quellen"], liste.get("logos")
     fehler = []
+    if logos is None:
+        fehler.append(f"veraltet: {PFADE_QUELLE} ohne Prüfsummen der Logos, {hinweis}")
     for ziel, quelle in PFAD_LOGOS.items():
         if not (WURZEL / ziel).is_file():
             fehler.append(f"fehlt: {ziel}, {hinweis}")
@@ -1802,6 +1812,27 @@ def pfade_pruefen() -> list[str]:
             fehler.append(f"fehlt: {quelle}, die Fassung mit Text, aus der {ziel} entsteht")
         elif quellen.get(quelle) != sha256(WURZEL / quelle):
             fehler.append(f"veraltet: {ziel}, {quelle} hat sich geändert, {hinweis}")
+        # Das Logo ist noch das, was wortmarke erzeugt hat, und keine Hand hat danach die Pfade verschoben (#18).
+        if logos is not None and (WURZEL / ziel).is_file() and logos.get(ziel) != sha256(WURZEL / ziel):
+            fehler.append(f"verändert: {ziel} ist nicht mehr, was wortmarke erzeugt hat, {hinweis}")
+    # Die Wortmarke ist in allen Logos dieselbe: Die Fassungen mit Text unterscheiden sich nur in der Farbe (#18).
+    vorhanden = [q for q in PFAD_LOGOS.values() if (WURZEL / q).is_file()]
+    if len(vorhanden) > 1:
+        erste, *weitere = vorhanden
+        try:
+            def ohne_farbe(quelle: str) -> tuple[dict, str]:
+                treffer, attrs = wortmarke_text(quelle)
+                return {k: v for k, v in attrs.items() if k != "fill"}, treffer.group(2)
+            soll = ohne_farbe(erste)
+            for quelle in weitere:
+                ist = ohne_farbe(quelle)
+                if ist != soll:
+                    anders = sorted(k for k in set(soll[0]) | set(ist[0]) if soll[0].get(k) != ist[0].get(k))
+                    if ist[1] != soll[1]:
+                        anders.append("Text")
+                    fehler.append(f"Wortmarke: {quelle} weicht von {erste} ab ({', '.join(anders)})")
+        except SystemExit as grund:
+            fehler.append(str(grund))
     return fehler
 
 
