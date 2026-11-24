@@ -1928,7 +1928,7 @@ def abgleich_pruefen(daten: dict) -> tuple[list[str], int]:
         for name, inhalt in erzeugt.items():
             (Path(tmp) / name).parent.mkdir(exist_ok=True)
             (Path(tmp) / name).write_text(inhalt, encoding="utf-8")
-        grund = {"erzeugt/zu-gross.css": "größer als 2 MB", "erzeugt/zu-tief.json": "JSON lässt sich nicht lesen"}
+        grund = {"erzeugt/zu-gross.css": "größer als 2 MB", "erzeugt/zu-tief.json": "JSON lässt sich nicht lesen: RecursionError"}
         for name in erzeugt:
             tests[name] = {"exit": 2, "exit_streng": 2, "befunde": None, "grund": grund[name]}
         for name, erwartet in tests.items():
